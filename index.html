@@ -1,312 +1,349 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclampsia — Emergency Protocol · Drzix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f9fafb;
-  --color-text-primary: #111827;
-  --color-text-secondary: #374151;
-  --color-text-tertiary: #6b7280;
-  --color-text-success: #059669;
-  --color-text-danger: #dc2626;
-  --color-border-secondary: #e5e7eb;
-  --color-border-tertiary: #d1d5db;
-  --border-radius-md: 12px;
-}
-
-body {
-  background-color: #f3f4f6;
-  padding: 2rem 1rem;
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efea;
+  --text:#1a1a18;--text2:#5a5a56;--text3:#9a9991;
+  --border:#e0dfd8;--border2:#ccc9c0;
+  --red-bg:#fff0f0;--red-border:#ffc5c5;--red-text:#c0392b;
+  --amber-bg:#fff8ec;--amber-border:#fde08a;--amber-text:#92600a;
+  --green-bg:#edfaf4;--green-border:#a3e6c5;--green-text:#1a6b43;
+  --blue-bg:#eef5ff;--blue-border:#b8d4f8;--blue-text:#1a4fa0;
+  --accent:#22C55E;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans)}
+body{font-family:'Outfit',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;padding:16px}
+.shell{max-width:480px;margin:0 auto}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.proto-badge{background:var(--red-bg);border:0.5px solid var(--red-border);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--red-text);letter-spacing:.08em}
+.proto-title{font-size:18px;font-weight:600;color:var(--text)}
 
-.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:10px}
+/* Emergency button */
+.emerg-btn{width:100%;padding:14px 16px;background:var(--red-bg);border:1.5px solid var(--red-border);border-radius:12px;cursor:pointer;margin-bottom:12px;text-align:left;transition:opacity .15s;display:block}
+.emerg-btn:hover{opacity:.85}
+.emerg-btn-label{font-size:13px;font-weight:600;color:var(--red-text);letter-spacing:.04em;display:block;margin-bottom:2px}
+.emerg-btn-sub{font-size:11px;color:var(--red-text);opacity:.7}
 
-.tl-row{display:flex;gap:0;margin-bottom:12px}
-.tl-seg{flex:1;padding:8px 10px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;border:0.5px solid transparent;transition:all .15s}
-.tl-seg:first-child{border-radius:var(--border-radius-md) 0 0 var(--border-radius-md)}
-.tl-seg:last-child{border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
-.tl-seg.red{background:var(--color-background-danger);color:var(--color-text-danger);border-color:var(--color-border-danger)}
-.tl-seg.amber{background:var(--color-background-warning);color:var(--color-text-warning);border-color:var(--color-border-warning)}
-.tl-seg.green{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success)}
-.tl-seg.active-seg{outline:2px solid var(--color-border-primary);outline-offset:-1px;font-weight:500}
-.tl-time{display:block;font-size:10px;opacity:.75;margin-top:1px}
+/* Timeline */
+.tl-row{display:flex;margin-bottom:12px;border-radius:8px;overflow:hidden;border:0.5px solid var(--border)}
+.tl-seg{flex:1;padding:7px 6px;font-size:11px;font-weight:500;text-align:center;cursor:pointer;border-right:0.5px solid var(--border);transition:all .15s;color:var(--text2);background:var(--bg)}
+.tl-seg:last-child{border-right:none}
+.tl-seg.red.active{background:var(--red-bg);color:var(--red-text);font-weight:600}
+.tl-seg.amber.active{background:var(--amber-bg);color:var(--amber-text);font-weight:600}
+.tl-seg.green.active{background:var(--green-bg);color:var(--green-text);font-weight:600}
+.tl-time{display:block;font-size:9px;opacity:.7;margin-top:1px}
 
-.step-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:4px;letter-spacing:.04em}
-.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
-.badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
-.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
-.badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
-.step-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
-.step-time{font-size:11px;color:var(--color-text-tertiary);margin-left:auto}
+/* Cards */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.step-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;letter-spacing:.04em}
+.badge-red{background:var(--red-bg);color:var(--red-text)}
+.badge-amber{background:var(--amber-bg);color:var(--amber-text)}
+.badge-green{background:var(--green-bg);color:var(--green-text)}
+.step-title{font-size:15px;font-weight:600;color:var(--text)}
+.step-time{font-size:11px;color:var(--text3);margin-left:auto}
+.why-text{font-size:12px;font-style:italic;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.section-label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.06em;margin:10px 0 6px}
 
-.action-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+/* Action rows */
+.action-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border)}
 .action-row:last-child{border-bottom:none}
-.bullet{width:6px;height:6px;border-radius:50%;background:var(--color-text-danger);flex-shrink:0;margin-top:6px}
-.bullet-amber{background:var(--color-text-warning)}
-.bullet-green{background:var(--color-text-success)}
-.bullet-blue{background:var(--color-text-info)}
-.action-text{font-size:13px;color:var(--color-text-primary);line-height:1.5}
-.action-sub{font-size:11px;color:var(--color-text-secondary);margin-top:1px}
+.bullet{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.bul-red{background:var(--red-text)}
+.bul-amber{background:var(--amber-text)}
+.bul-green{background:var(--green-text)}
+.bul-blue{background:var(--blue-text)}
+.action-text{font-size:13px;color:var(--text);line-height:1.5}
+.action-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.note-text{font-size:11px;font-style:italic;color:var(--text2);margin-top:8px}
 
-.drug-prep{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin:8px 0}
-.prep-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px;color:var(--color-text-primary)}
+/* Drug prep */
+.drug-prep{background:var(--bg2);border-radius:8px;padding:10px 12px;margin:6px 0}
+.prep-route{font-size:12px;font-weight:600;color:var(--amber-text);margin-bottom:6px}
+.prep-row{display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap}
 .prep-row:last-child{margin-bottom:0}
-.prep-plus{color:var(--color-text-tertiary);font-weight:500}
-.prep-eq{font-weight:500;color:var(--color-text-success)}
 .amp-group{display:flex;gap:3px}
-.amp{width:10px;height:24px;border-radius:3px;background:var(--color-background-warning);border:0.5px solid var(--color-border-warning)}
-.vial{width:18px;height:24px;border-radius:3px;background:var(--color-background-info);border:0.5px solid var(--color-border-info);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--color-text-info)}
-.syringe{width:32px;height:14px;border-radius:7px;background:var(--color-background-success);border:0.5px solid var(--color-border-success);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--color-text-success);font-weight:500}
+.amp{width:9px;height:22px;border-radius:3px;background:var(--amber-bg);border:0.5px solid var(--amber-border)}
+.vial{width:32px;height:22px;border-radius:4px;background:var(--blue-bg);border:0.5px solid var(--blue-border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--blue-text)}
+.syringe{padding:2px 8px;border-radius:10px;background:var(--green-bg);border:0.5px solid var(--green-border);font-size:10px;font-weight:600;color:var(--green-text)}
+.prep-plus{color:var(--text3);font-weight:600;font-size:13px}
+.prep-desc{font-size:12px;color:var(--text2)}
+.prep-note{font-size:11px;color:var(--text3);margin-top:4px}
 
-.tox-ladder{display:flex;flex-direction:column;gap:0;margin:8px 0}
-.tox-rung{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--border-radius-md);margin-bottom:4px}
-.tox-rung.t1{background:var(--color-background-warning)}
-.tox-rung.t2{background:#FAECE7}
-.tox-rung.t3{background:var(--color-background-danger)}
-.tox-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
-.tox-val{font-size:11px;font-weight:500;min-width:56px}
-.tox-t1 .tox-val{color:var(--color-text-warning)}
-.tox-t2 .tox-val{color:#712B13}
-.tox-t3 .tox-val{color:var(--color-text-danger)}
-.tox-label{font-size:13px;font-weight:500}
-.tox-t1 .tox-label{color:var(--color-text-warning)}
-.tox-t2 .tox-label{color:#712B13}
-.tox-t3 .tox-label{color:var(--color-text-danger)}
+/* Monitor grid */
+.monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.monitor-item{background:var(--bg2);border-radius:8px;padding:8px 10px}
+.monitor-label{font-size:11px;color:var(--text2);margin-bottom:2px}
+.monitor-val{font-size:13px;font-weight:600;color:var(--text)}
+.monitor-full{grid-column:1/-1}
 
-.checklist-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer}
-.checklist-row:last-child{border-bottom:none}
-.chk{width:18px;height:18px;border-radius:4px;border:0.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:var(--color-background-primary)}
-.chk.checked{background:var(--color-background-success);border-color:var(--color-border-success)}
-.chk-label{font-size:13px;color:var(--color-text-primary)}
-.chk-sub{font-size:11px;color:var(--color-text-secondary)}
-
-.emerg-btn{width:100%;padding:16px;background:var(--color-background-danger);border:1.5px solid var(--color-border-danger);border-radius:var(--border-radius-lg);cursor:pointer;margin-bottom:12px;transition:opacity .15s}
-.emerg-btn:hover{opacity:.88}
-.emerg-btn-label{font-size:13px;font-weight:500;color:var(--color-text-danger);letter-spacing:.04em;display:block;margin-bottom:2px}
-.emerg-btn-sub{font-size:11px;color:var(--color-text-danger);opacity:.75}
-
-.emerg-screen{padding:1rem 0}
-.emerg-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--color-border-danger)}
-.emerg-step:last-child{border-bottom:none}
-.emerg-num{min-width:24px;height:24px;border-radius:50%;background:var(--color-background-danger);color:var(--color-text-danger);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
-.emerg-text{font-size:14px;font-weight:500;color:var(--color-text-primary);line-height:1.4}
-.emerg-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.back-btn{font-size:12px;color:var(--color-text-secondary);background:none;border:none;cursor:pointer;padding:4px 0;margin-bottom:12px;display:flex;align-items:center;gap:4px}
-
-.section-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:2px 0;margin-bottom:6px}
-.section-toggle-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;text-transform:uppercase}
-.chevron{font-size:12px;color:var(--color-text-tertiary);transition:transform .2s}
+/* Toxicity */
+.tox-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:4px 0;border-top:0.5px solid var(--border);margin-top:10px}
+.tox-toggle-label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.06em}
+.chevron{font-size:13px;color:var(--text3);transition:transform .2s;line-height:1}
 .chevron.open{transform:rotate(180deg)}
+.tox-body{margin-top:8px}
+.tox-rung{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:4px}
+.tox-r1{background:var(--amber-bg)}
+.tox-r2{background:#fff4f0}
+.tox-r3{background:var(--red-bg)}
+.tox-icon{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.tox-val{font-size:11px;font-weight:600;min-width:58px}
+.tox-r1 .tox-val{color:var(--amber-text)}
+.tox-r2 .tox-val{color:#a03010}
+.tox-r3 .tox-val{color:var(--red-text)}
+.tox-label{font-size:13px;font-weight:500}
+.tox-r1 .tox-label{color:var(--amber-text)}
+.tox-r2 .tox-label{color:#a03010}
+.tox-r3 .tox-label{color:var(--red-text)}
+.antidote-box{background:var(--green-bg);border:0.5px solid var(--green-border);border-radius:8px;padding:10px 12px;margin-top:8px}
+.antidote-title{font-size:11px;font-weight:600;color:var(--green-text);margin-bottom:3px}
+.antidote-text{font-size:13px;color:var(--green-text)}
 
-.antidote-box{background:var(--color-background-success);border:0.5px solid var(--color-border-success);border-radius:var(--border-radius-md);padding:10px 12px;margin-top:8px}
-.antidote-title{font-size:12px;font-weight:500;color:var(--color-text-success);margin-bottom:3px}
-.antidote-text{font-size:13px;color:var(--color-text-success)}
+/* Anti-HTN drugs */
+.drug-card{background:var(--bg2);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.drug-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.drug-detail{font-size:12px;color:var(--text2);margin-bottom:2px;line-height:1.5}
+.drug-ci{font-size:11px;color:var(--red-text)}
+
+/* Checklist */
+.checklist-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);cursor:pointer}
+.checklist-row:last-child{border-bottom:none}
+.chk{width:20px;height:20px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.chk.checked{background:var(--green-bg);border-color:var(--green-border)}
+.chk-label{font-size:13px;color:var(--text);font-weight:500}
+.chk-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.chk-progress{font-size:12px;color:var(--text2);text-align:right;margin-top:8px}
+
+/* Emergency screen */
+.emerg-screen{padding:.5rem 0}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);background:none;border:none;cursor:pointer;padding:4px 0;margin-bottom:12px;font-family:'Outfit',sans-serif}
+.emerg-header{background:var(--red-bg);border:0.5px solid var(--red-border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.emerg-tag{font-size:10px;font-weight:600;color:var(--red-text);letter-spacing:.08em;margin-bottom:4px}
+.emerg-desc{font-size:13px;color:var(--red-text)}
+.emerg-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.emerg-step:last-child{border-bottom:none}
+.emerg-num{min-width:26px;height:26px;border-radius:50%;background:var(--red-bg);color:var(--red-text);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;border:0.5px solid var(--red-border)}
+.emerg-text{font-size:14px;font-weight:600;color:var(--text);line-height:1.4}
+.emerg-sub{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4}
+.fallback-box{background:var(--bg2);border-radius:8px;padding:12px 14px;margin-top:10px}
+.fallback-title{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.06em;margin-bottom:8px}
+.fallback-row{font-size:13px;color:var(--text);padding:4px 0;border-bottom:0.5px solid var(--border);line-height:1.5}
+.fallback-row:last-child{border-bottom:none}
+.fallback-arrow{color:var(--text3);margin:0 4px}
+
+/* Version tag */
+.version-tag{text-align:center;font-size:11px;color:var(--text3);margin-top:20px;padding-bottom:20px}
 </style>
+</head>
+<body>
+<div class="shell">
 
-<div style="padding:.5rem 0" id="root">
-
-<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-  <div style="background:var(--color-background-danger);border-radius:var(--border-radius-md);padding:5px 12px">
-    <span style="font-size:10px;font-weight:500;color:var(--color-text-danger);letter-spacing:.08em">EMERGENCY PROTOCOL</span>
-  </div>
-  <span style="font-size:17px;font-weight:500;color:var(--color-text-primary)">Eclampsia</span>
+<div class="topbar">
+  <div class="proto-badge">EMERGENCY PROTOCOL</div>
+  <span class="proto-title">Eclampsia</span>
 </div>
 
-<div id="main-view">
-
-<button class="emerg-btn" onclick="showEmerg()">
+<button class="emerg-btn" onclick="showEmerg()" id="emerg-btn">
   <span class="emerg-btn-label">Seizure recurring?</span>
   <span class="emerg-btn-sub">Tap for immediate next step</span>
 </button>
 
 <div class="tl-row" id="tl">
-  <div class="tl-seg red active-seg" onclick="setStep(0)">Airway<span class="tl-time">0–1 min</span></div>
+  <div class="tl-seg red active" onclick="setStep(0)">Airway<span class="tl-time">0–1 min</span></div>
   <div class="tl-seg amber" onclick="setStep(1)">MgSO₄<span class="tl-time">1–20 min</span></div>
   <div class="tl-seg amber" onclick="setStep(2)">BP control<span class="tl-time">20–30 min</span></div>
   <div class="tl-seg green" onclick="setStep(3)">Delivery<span class="tl-time">30–60 min</span></div>
 </div>
 
-<div id="step-content"></div>
-
+<div id="main-view">
+  <div id="step-content"></div>
 </div>
 
 <div id="emerg-view" style="display:none"></div>
 
+<div class="version-tag">Drzix · Eclampsia · v1.0 · For demonstration only</div>
 </div>
 
 <script>
-const STEPS = [
-  {
-    badge:'DO NOW', badgeCls:'badge-red', title:'Airway + position', time:'0–1 min',
-    actions:[
-      {b:'bullet', text:'Left lateral position', sub:'Prevents aortocaval compression + aspiration'},
-      {b:'bullet', text:'Raise bed rails', sub:'Prevent fall injury during convulsion'},
-      {b:'bullet', text:'Clear airway — jaw thrust if obstructed', sub:'Do not force mouth open'},
-      {b:'bullet', text:'O₂ mask 8–10 L/min', sub:'Target SpO₂ ≥ 95%'},
-      {b:'bullet', text:'IV access ×2 (18G)', sub:'Draw blood simultaneously: LFT · S.Creat · CBC · coag'},
-    ],
-    note:'Do NOT leave patient. Call for help while doing above.'
-  },
-  {
-    badge:'DO NOW', badgeCls:'badge-amber', title:'MgSO₄ loading dose', time:'1–20 min',
-    why:'NMDA receptor block → stabilises neuronal membrane → stops seizure',
-    drug:'pritchard',
-    maint:true
-  },
-  {
-    badge:'DO NEXT', badgeCls:'badge-amber', title:'Anti-HTN if BP ≥ 160/110', time:'20–30 min',
-    why:'Prevent intracranial haemorrhage. Target: 130–140 / 80–90 mmHg. Do NOT overcorrect.',
-    drugs:[
-      {name:'1st: Labetalol IV', detail:'20 mg → check BP 15 min → 40 mg → 80 mg → 80 mg. Max 220 mg.', ci:'Contraindicated: asthma, bradycardia'},
-      {name:'2nd: Hydralazine IV', detail:'5 mg over 20 min → 10 mg. Max 30 mg.', ci:'Watch: reflex tachycardia'},
-      {name:'3rd: Nifedipine oral', detail:'10 mg oral. Repeat after 30 min.', ci:'NEVER sublingual. Caution with MgSO₄.'},
-    ]
-  },
-  {
-    badge:'DEFINITIVE', badgeCls:'badge-green', title:'Delivery + refer', time:'30–60 min',
-    actions:[
-      {b:'bullet-green', text:'Terminate pregnancy irrespective of gestational age'},
-      {b:'bullet-green', text:'Mode: vaginal preferred'},
-      {b:'bullet-green', text:'Caesarean only for obstetric indication'},
-      {b:'bullet-green', text:'Anaesthesia: general (not neuraxial — coagulopathy risk)'},
-      {b:'bullet-green', text:'Refer after loading dose + first anti-HTN'},
-    ],
-    checklist:true
-  }
+const CHECK_LABELS=[
+  {t:'Loading dose given',s:'MgSO₄ IV + IM'},
+  {t:'Anti-HTN given',s:'Labetalol or hydralazine'},
+  {t:'Ca gluconate drawn',s:'10 ml of 10% — at bedside'},
+  {t:'Foley catheter',s:'Monitor urine output'},
+  {t:'FHS checked',s:'Rule out fetal distress'},
+  {t:'Referral note ready',s:'Drug given + time + BP'},
 ];
-
-let cur=0;
-let checkStates=[false,false,false,false,false,false];
-let toxOpen=false;
+let cur=0, toxOpen=false, checks=Array(6).fill(false);
 
 function setStep(i){
   cur=i;
-  document.querySelectorAll('.tl-seg').forEach((s,j)=>s.classList.toggle('active-seg',j===i));
-  renderStep();
+  const segs=document.querySelectorAll('.tl-seg');
+  segs.forEach((s,j)=>{s.classList.remove('active');});
+  segs[i].classList.add('active');
+  render();
 }
 
-function renderStep(){
-  const s=STEPS[cur];
-  let html=`<div class="card">
+function render(){
+  const el=document.getElementById('step-content');
+  if(cur===0) el.innerHTML=renderAirway();
+  else if(cur===1) el.innerHTML=renderMgSO4();
+  else if(cur===2) el.innerHTML=renderBP();
+  else el.innerHTML=renderDelivery();
+}
+
+function renderAirway(){
+  return `<div class="card">
     <div class="step-header">
-      <span class="badge ${s.badgeCls}">${s.badge}</span>
-      <span class="step-title">${s.title}</span>
-      <span class="step-time">${s.time}</span>
-    </div>`;
+      <span class="badge badge-red">DO NOW</span>
+      <span class="step-title">Airway + position</span>
+      <span class="step-time">0–1 min</span>
+    </div>
+    <div class="action-row"><div class="bullet bul-red"></div><div><div class="action-text">Left lateral position</div><div class="action-sub">Prevents aortocaval compression + aspiration</div></div></div>
+    <div class="action-row"><div class="bullet bul-red"></div><div><div class="action-text">Raise bed rails</div><div class="action-sub">Prevent fall injury during convulsion</div></div></div>
+    <div class="action-row"><div class="bullet bul-red"></div><div><div class="action-text">Clear airway — jaw thrust if obstructed</div><div class="action-sub">Do not force mouth open</div></div></div>
+    <div class="action-row"><div class="bullet bul-red"></div><div><div class="action-text">O₂ mask 8–10 L/min</div><div class="action-sub">Target SpO₂ ≥ 95%</div></div></div>
+    <div class="action-row"><div class="bullet bul-red"></div><div><div class="action-text">IV access ×2 (18G)</div><div class="action-sub">Draw blood simultaneously: LFT · S.Creat · CBC · coag</div></div></div>
+    <p class="note-text">Do NOT leave patient. Call for help while doing above.</p>
+  </div>`;
+}
 
-  if(s.why) html+=`<div style="font-size:12px;font-style:italic;color:var(--color-text-secondary);margin-bottom:10px">${s.why}</div>`;
-
-  if(s.drug==='pritchard'){
-    html+=`<div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;letter-spacing:.04em">LOADING DOSE — give both simultaneously</div>
+function renderMgSO4(){
+  return `<div class="card">
+    <div class="step-header">
+      <span class="badge badge-amber">DO NOW</span>
+      <span class="step-title">MgSO₄ loading dose</span>
+      <span class="step-time">1–20 min</span>
+    </div>
+    <p class="why-text">NMDA receptor block → stabilises neuronal membrane → stops seizure</p>
+    <div class="section-label">LOADING DOSE — give both simultaneously</div>
     <div class="drug-prep">
-      <div style="font-size:12px;font-weight:500;color:var(--color-text-warning);margin-bottom:6px">IV route</div>
-      <div class="prep-row"><div class="amp-group">${'<div class="amp"></div>'.repeat(4)}</div><span class="prep-plus">×4 amp</span><span style="font-size:12px;color:var(--color-text-secondary)">(50% MgSO₄, 1g each)</span></div>
-      <div class="prep-row"><span class="prep-plus">+</span><div class="vial">NS</div><span style="font-size:12px;color:var(--color-text-secondary)">12 ml normal saline</span></div>
-      <div class="prep-row"><span class="prep-eq">=</span><div class="syringe">20 ml</div><span style="font-size:12px;color:var(--color-text-secondary)">4 g at ~20% — inject over 15–20 min</span></div>
-      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:4px">No pump: 1 ml/min manually. Never give 50% undiluted IV.</div>
+      <div class="prep-route">IV route</div>
+      <div class="prep-row"><div class="amp-group"><div class="amp"></div><div class="amp"></div><div class="amp"></div><div class="amp"></div></div><span class="prep-desc">×4 amp (50% MgSO₄, 1 g each)</span></div>
+      <div class="prep-row"><span class="prep-plus">+</span><div class="vial">NS</div><span class="prep-desc">12 ml normal saline</span></div>
+      <div class="prep-row"><span class="prep-plus">=</span><div class="syringe">20 ml syringe</div><span class="prep-desc">4 g at ~20% — inject over 15–20 min</span></div>
+      <p class="prep-note">No pump: 1 ml/min manually. Never give 50% undiluted IV.</p>
     </div>
     <div class="drug-prep">
-      <div style="font-size:12px;font-weight:500;color:var(--color-text-warning);margin-bottom:6px">IM route (simultaneous)</div>
-      <div class="prep-row"><div class="amp-group">${'<div class="amp"></div>'.repeat(5)}</div><span class="prep-plus">×5 amp each buttock</span></div>
-      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:2px">Add 1 ml of 2% lignocaine per side. Z-track. Deep IM.</div>
+      <div class="prep-route">IM route (simultaneous)</div>
+      <div class="prep-row"><div class="amp-group"><div class="amp"></div><div class="amp"></div><div class="amp"></div><div class="amp"></div><div class="amp"></div></div><span class="prep-desc">×5 amp each buttock = 10 g total</span></div>
+      <p class="prep-note">Add 1 ml of 2% lignocaine per side. Z-track. Deep IM.</p>
     </div>
-    <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:10px 0 6px;letter-spacing:.04em">MAINTENANCE — before every dose check all 3</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px"><div style="font-size:11px;color:var(--color-text-secondary)">Knee jerk (DTR)</div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Must be present</div></div>
-      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px"><div style="font-size:11px;color:var(--color-text-secondary)">Resp rate</div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">≥ 12 / min</div></div>
-      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;grid-column:1/-1"><div style="font-size:11px;color:var(--color-text-secondary)">Urine output</div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">≥ 100 ml / 4 hours</div></div>
+    <div class="section-label">MAINTENANCE — check all 3 before every dose</div>
+    <div class="monitor-grid">
+      <div class="monitor-item"><div class="monitor-label">Knee jerk (DTR)</div><div class="monitor-val">Must be present</div></div>
+      <div class="monitor-item"><div class="monitor-label">Resp rate</div><div class="monitor-val">≥ 12 / min</div></div>
+      <div class="monitor-item monitor-full"><div class="monitor-label">Urine output</div><div class="monitor-val">≥ 100 ml / 4 hours</div></div>
     </div>
-    <div style="font-size:12px;color:var(--color-text-secondary)">5 g IM q4h in alternate buttocks. Continue 24h post-delivery or 24h post-last seizure — whichever is later.</div>`;
-
-    html+=`<div style="margin-top:12px">
-      <div class="section-toggle" onclick="toggleTox()">
-        <span class="section-toggle-label">MgSO₄ toxicity signs</span>
-        <span class="chevron ${toxOpen?'open':''}">&#8964;</span>
+    <p style="font-size:12px;color:var(--text2)">5 g IM q4h in alternate buttocks. Continue 24h post-delivery or 24h post-last seizure — whichever is later.</p>
+    <div class="tox-toggle" onclick="toggleTox()">
+      <span class="tox-toggle-label">MgSO₄ TOXICITY SIGNS</span>
+      <span class="chevron ${toxOpen?'open':''}" id="chev">&#8964;</span>
+    </div>
+    ${toxOpen?`<div class="tox-body">
+      <div class="tox-rung tox-r1"><span class="tox-icon">🦵</span><span class="tox-val">9–10 mEq/L</span><span class="tox-label">Loss of knee jerk — hold next dose</span></div>
+      <div class="tox-rung tox-r2"><span class="tox-icon">🫁</span><span class="tox-val">12 mEq/L</span><span class="tox-label">Respiratory arrest</span></div>
+      <div class="tox-rung tox-r3"><span class="tox-icon">❤️</span><span class="tox-val">15–24 mEq/L</span><span class="tox-label">Cardiac arrest</span></div>
+      <div class="antidote-box">
+        <div class="antidote-title">Antidote — keep drawn at bedside before starting</div>
+        <div class="antidote-text">Calcium gluconate 10 ml of 10% IV — slow push over 3 min</div>
       </div>
-      <div id="tox-body" style="display:${toxOpen?'block':'none'}">
-        <div class="tox-ladder">
-          <div class="tox-rung t1 tox-t1"><span class="tox-icon">&#129460;</span><span class="tox-val">9–10 mEq/L</span><span class="tox-label">Loss of knee jerk — hold next dose</span></div>
-          <div class="tox-rung t2 tox-t2"><span class="tox-icon">&#129978;</span><span class="tox-val">12 mEq/L</span><span class="tox-label">Respiratory arrest</span></div>
-          <div class="tox-rung t3 tox-t3"><span class="tox-icon">&#10084;</span><span class="tox-val">15–24 mEq/L</span><span class="tox-label">Cardiac arrest</span></div>
-        </div>
-        <div class="antidote-box">
-          <div class="antidote-title">Antidote — keep drawn at bedside before starting</div>
-          <div class="antidote-text">Calcium gluconate 10 ml of 10% IV — slow push over 3 min</div>
-        </div>
-        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">Oliguria alone is NOT a toxicity sign.</div>
-      </div>
-    </div>`;
-  }
-
-  if(s.actions){
-    html+=s.actions.map(a=>`<div class="action-row"><div class="bullet ${a.b||''}"></div><div><div class="action-text">${a.text}</div>${a.sub?`<div class="action-sub">${a.sub}</div>`:''}</div></div>`).join('');
-    if(s.note) html+=`<div style="font-size:11px;font-style:italic;color:var(--color-text-secondary);margin-top:8px">${s.note}</div>`;
-  }
-
-  if(s.drugs){
-    html+=s.drugs.map((d,i)=>`<div class="drug-prep" style="margin-bottom:6px"><div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px">${d.name}</div><div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:2px">${d.detail}</div><div style="font-size:11px;color:var(--color-text-danger)">${d.ci}</div></div>`).join('');
-  }
-
-  if(s.checklist){
-    const items=[
-      {t:'Loading dose given',s:'MgSO₄ IV + IM'},
-      {t:'Anti-HTN given',s:'Labetalol or hydralazine'},
-      {t:'Ca gluconate drawn',s:'10 ml of 10% — at bedside'},
-      {t:'Foley catheter',s:'Monitor urine output'},
-      {t:'FHS checked',s:'Rule out fetal distress'},
-      {t:'Referral note ready',s:'Drug given + time + BP'},
-    ];
-    html+=`<div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;letter-spacing:.04em">PHC REFERRAL CHECKLIST</div>`;
-    html+=items.map((it,i)=>`<div class="checklist-row" onclick="toggleCheck(${i})"><div class="chk ${checkStates[i]?'checked':''}" id="chk${i}">${checkStates[i]?'<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="var(--color-text-success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><div><div class="chk-label">${it.t}</div><div class="chk-sub">${it.s}</div></div></div>`).join('');
-    const done=checkStates.filter(Boolean).length;
-    html+=`<div style="font-size:12px;color:var(--color-text-secondary);margin-top:8px;text-align:right">${done}/6 complete</div>`;
-  }
-
-  html+='</div>';
-  document.getElementById('step-content').innerHTML=html;
+      <p style="font-size:11px;color:var(--text3);margin-top:6px">Oliguria alone is NOT a toxicity sign.</p>
+    </div>`:''}
+  </div>`;
 }
 
-function toggleTox(){
-  toxOpen=!toxOpen;
-  renderStep();
+function renderBP(){
+  return `<div class="card">
+    <div class="step-header">
+      <span class="badge badge-amber">DO NEXT</span>
+      <span class="step-title">Anti-HTN if BP ≥ 160/110</span>
+      <span class="step-time">20–30 min</span>
+    </div>
+    <p class="why-text">Prevent intracranial haemorrhage. Target: 130–140 / 80–90 mmHg. Do NOT overcorrect — hypotension → fetal distress.</p>
+    <div class="drug-card">
+      <div class="drug-name">1st line: Labetalol IV</div>
+      <div class="drug-detail">20 mg → check BP 15 min → 40 mg → 80 mg → 80 mg<br>Max cumulative dose: 220 mg</div>
+      <div class="drug-ci">Contraindicated: asthma, bradycardia</div>
+    </div>
+    <div class="drug-card">
+      <div class="drug-name">2nd line: Hydralazine IV</div>
+      <div class="drug-detail">5 mg over 20 min → repeat 10 mg if needed. Max 30 mg.</div>
+      <div class="drug-ci">Watch: reflex tachycardia + headache</div>
+    </div>
+    <div class="drug-card">
+      <div class="drug-name">3rd line: Nifedipine oral</div>
+      <div class="drug-detail">10 mg oral. Repeat after 30 min if needed.</div>
+      <div class="drug-ci">NEVER sublingual. Caution: combined with MgSO₄ → neuromuscular blockade</div>
+    </div>
+  </div>`;
 }
 
-function toggleCheck(i){
-  checkStates[i]=!checkStates[i];
-  renderStep();
+function renderDelivery(){
+  const done=checks.filter(Boolean).length;
+  return `<div class="card">
+    <div class="step-header">
+      <span class="badge badge-green">DEFINITIVE</span>
+      <span class="step-title">Delivery + refer</span>
+      <span class="step-time">30–60 min</span>
+    </div>
+    <div class="action-row"><div class="bullet bul-green"></div><div><div class="action-text">Terminate pregnancy — irrespective of gestational age</div></div></div>
+    <div class="action-row"><div class="bullet bul-green"></div><div><div class="action-text">Mode: vaginal preferred</div></div></div>
+    <div class="action-row"><div class="bullet bul-green"></div><div><div class="action-text">Caesarean only for obstetric indication</div></div></div>
+    <div class="action-row"><div class="bullet bul-green"></div><div><div class="action-text">Anaesthesia: general (not neuraxial)</div><div class="action-sub">Coagulopathy risk in HELLP</div></div></div>
+    <div class="action-row"><div class="bullet bul-green"></div><div><div class="action-text">Refer after loading dose + first anti-HTN</div></div></div>
+    <div class="section-label" style="margin-top:12px">PHC REFERRAL CHECKLIST</div>
+    ${CHECK_LABELS.map((it,i)=>`
+      <div class="checklist-row" onclick="toggleCheck(${i})">
+        <div class="chk ${checks[i]?'checked':''}">${checks[i]?'<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5l3 3 6-7" stroke="#1a6b43" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
+        <div><div class="chk-label">${it.t}</div><div class="chk-sub">${it.s}</div></div>
+      </div>`).join('')}
+    <p class="chk-progress">${done}/6 complete</p>
+  </div>`;
 }
+
+function toggleTox(){toxOpen=!toxOpen;render();}
+function toggleCheck(i){checks[i]=!checks[i];render();}
 
 function showEmerg(){
   document.getElementById('main-view').style.display='none';
+  document.getElementById('emerg-btn').style.display='none';
+  document.getElementById('tl').style.display='none';
   document.getElementById('emerg-view').style.display='block';
   document.getElementById('emerg-view').innerHTML=`
     <button class="back-btn" onclick="hideEmerg()">&#8592; Back to protocol</button>
-    <div style="background:var(--color-background-danger);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px">
-      <div style="font-size:10px;font-weight:500;color:var(--color-text-danger);letter-spacing:.08em;margin-bottom:4px">RECURRENT SEIZURE</div>
-      <div style="font-size:13px;color:var(--color-text-danger)">MgSO₄ maintenance given but seizure recurred</div>
+    <div class="emerg-header">
+      <div class="emerg-tag">RECURRENT SEIZURE</div>
+      <div class="emerg-desc">MgSO₄ maintenance given but seizure has recurred</div>
     </div>
-    <div class="emerg-screen">
+    <div class="card emerg-screen">
       <div class="emerg-step"><div class="emerg-num">1</div><div><div class="emerg-text">Check — was maintenance given correctly?</div><div class="emerg-sub">DTR present before dose? RR ≥ 12? UO ≥ 100 ml/4h?</div></div></div>
       <div class="emerg-step"><div class="emerg-num">2</div><div><div class="emerg-text">Additional 2 g MgSO₄ IV</div><div class="emerg-sub">2 amp 50% + 6 ml NS → 10 ml. Inject over 10 min.</div></div></div>
-      <div class="emerg-step"><div class="emerg-num">3</div><div><div class="emerg-text">Still seizing? Diazepam 10 mg IV slow push</div><div class="emerg-sub">Rescue only. Causes neonatal respiratory depression.</div></div></div>
-      <div class="emerg-step"><div class="emerg-num">4</div><div><div class="emerg-text">Reassess airway</div><div class="emerg-sub">If GCS falling → prepare for intubation + call for help</div></div></div>
+      <div class="emerg-step"><div class="emerg-num">3</div><div><div class="emerg-text">Still seizing? Diazepam 10 mg IV slow push</div><div class="emerg-sub">Rescue only — causes neonatal respiratory depression</div></div></div>
+      <div class="emerg-step"><div class="emerg-num">4</div><div><div class="emerg-text">Reassess airway</div><div class="emerg-sub">If GCS falling → prepare intubation + escalate</div></div></div>
     </div>
-    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin-top:4px">
-      <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;letter-spacing:.04em">NO DRUG? USE NEXT AVAILABLE</div>
-      <div style="font-size:13px;color:var(--color-text-primary);margin-bottom:4px">No labetalol → hydralazine 5 mg IV</div>
-      <div style="font-size:13px;color:var(--color-text-primary);margin-bottom:4px">No hydralazine → nifedipine 10 mg oral</div>
-      <div style="font-size:13px;color:var(--color-text-primary)">No pump → 1 ml/min IV push by hand</div>
-    </div>
-  `;
+    <div class="fallback-box">
+      <div class="fallback-title">NO DRUG? USE NEXT AVAILABLE</div>
+      <div class="fallback-row">No labetalol<span class="fallback-arrow">→</span>Hydralazine 5 mg IV</div>
+      <div class="fallback-row">No hydralazine<span class="fallback-arrow">→</span>Nifedipine 10 mg oral</div>
+      <div class="fallback-row">No pump<span class="fallback-arrow">→</span>1 ml/min IV push by hand</div>
+    </div>`;
 }
 
 function hideEmerg(){
   document.getElementById('emerg-view').style.display='none';
   document.getElementById('main-view').style.display='block';
+  document.getElementById('emerg-btn').style.display='block';
+  document.getElementById('tl').style.display='flex';
 }
 
 setStep(0);
 </script>
+</body>
+</html>
