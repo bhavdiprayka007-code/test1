@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclampsia — Emergency Protocol · Drzix v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efea;
+  --text:#1a1a18;--text2:#5a5a56;--text3:#9a9991;
+  --border:#e0dfd8;--border2:#ccc9c0;
+  --red-bg:#fff0f0;--red-border:#ffc5c5;--red-text:#c0392b;
+  --amber-bg:#fff8ec;--amber-border:#fde08a;--amber-text:#92600a;
+  --green-bg:#edfaf4;--green-border:#a3e6c5;--green-text:#1a6b43;
+  --blue-bg:#eef5ff;--blue-border:#b8d4f8;--blue-text:#1a4fa0;
+  --accent:#22C55E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;padding:16px}
+.shell{max-width:480px;margin:0 auto}
+
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.proto-badge{background:var(--red-bg);border:0.5px solid var(--red-border);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--red-text);letter-spacing:.08em}
+.proto-title{font-size:18px;font-weight:600;color:var(--text)}
+
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.card-red{border-left:3px solid var(--red-text);padding-left:14px;border-radius:0 12px 12px 0}
+.card-amber{border-left:3px solid var(--amber-text);padding-left:14px;border-radius:0 12px 12px 0}
+.card-teal{border-left:3px solid #0F6E56;padding-left:14px;border-radius:0 12px 12px 0}
+.card-blue{border-left:3px solid var(--blue-text);padding-left:14px;border-radius:0 12px 12px 0}
+
+.card-header{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px}
+.why-text{font-size:12px;font-style:italic;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.section-label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.06em;margin:10px 0 6px}
+
+.step{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
+.step-num{min-width:22px;height:22px;border-radius:50%;background:var(--red-bg);color:var(--red-text);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px;border:0.5px solid var(--red-border)}
+.step-num-amber{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber-border)}
+.step-num-blue{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border)}
+.step-text{font-size:13px;color:var(--text);line-height:1.5}
+.step-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.note-text{font-size:11px;font-style:italic;color:var(--text2);margin-top:6px}
+
+.drug-box{background:var(--bg2);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.drug-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.drug-why{font-size:11px;color:var(--text2);margin-bottom:5px;font-style:italic}
+.dose-line{font-size:13px;color:var(--text);margin-bottom:2px}
+.dose-sub{font-size:11px;color:var(--text2);margin-left:10px;margin-bottom:3px}
+
+.monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.monitor-item{background:var(--bg2);border-radius:8px;padding:8px 10px}
+.monitor-label{font-size:11px;color:var(--text2);margin-bottom:2px}
+.monitor-val{font-size:13px;font-weight:600;color:var(--text)}
+.monitor-full{grid-column:1/-1}
+
+.alert-box{background:var(--red-bg);border-radius:8px;padding:8px 12px;margin-bottom:6px;border:0.5px solid var(--red-border)}
+.alert-text{font-size:12px;color:var(--red-text);line-height:1.5}
+
+.tox-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.tox-item{background:var(--bg2);border-radius:8px;padding:8px 10px}
+.tox-level{font-size:11px;color:var(--text2);margin-bottom:2px}
+.tox-sign{font-size:12px;font-weight:600}
+.tox-warn{color:var(--amber-text)}
+.tox-danger{color:var(--red-text)}
+
+.antidote-box{background:var(--amber-bg);border:0.5px solid var(--amber-border);border-radius:8px;padding:10px 12px;margin-top:4px}
+.antidote-title{font-size:11px;font-weight:600;color:var(--amber-text);margin-bottom:3px}
+.antidote-text{font-size:13px;color:var(--amber-text)}
+
+.next-line-box{background:var(--amber-bg);border-radius:8px;padding:10px 12px;margin-top:6px;border:0.5px solid var(--amber-border)}
+.next-line-title{font-size:11px;font-weight:600;color:var(--amber-text);margin-bottom:4px}
+
+.recurrent-card{background:var(--bg);border:0.5px solid var(--red-border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+
+.version-tag{text-align:center;font-size:11px;color:var(--text3);margin-top:20px;padding-bottom:20px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<div class="topbar">
+  <div class="proto-badge">EMERGENCY PROTOCOL</div>
+  <span class="proto-title">Eclampsia</span>
+</div>
+
+<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Severe pre-eclampsia + generalised tonic-clonic seizures. Most common: antepartum. Most dangerous.</p>
+
+<!-- Step 1 -->
+<div class="card card-red">
+  <div class="card-header">Step 1 — First 60 seconds</div>
+  <div class="step"><div class="step-num">1</div><div><div class="step-text">Turn patient left lateral</div><div class="step-sub">Prevents aortocaval compression + aspiration</div></div></div>
+  <div class="step"><div class="step-num">2</div><div><div class="step-text">Raise bed rails</div><div class="step-sub">Prevent fall injury during convulsion</div></div></div>
+  <div class="step"><div class="step-num">3</div><div><div class="step-text">Clear airway — suction if needed; jaw thrust if obstructed</div><div class="step-sub">Do not force mouth open</div></div></div>
+  <div class="step"><div class="step-num">4</div><div><div class="step-text">O₂ by mask — 8–10 L/min</div><div class="step-sub">Target SpO₂ ≥ 95%</div></div></div>
+  <div class="step"><div class="step-num">5</div><div><div class="step-text">IV access ×2 (18G or larger)</div><div class="step-sub">Draw blood simultaneously: LFT · S.Creatinine · CBC · coagulation</div></div></div>
+  <p class="note-text">Do NOT leave the patient. Shout for help while doing above steps.</p>
+</div>
+
+<!-- Step 2 MgSO4 -->
+<div class="card card-amber">
+  <div class="card-header">Step 2 — MgSO₄ (stop seizures + prevent recurrence)</div>
+  <p class="why-text">NMDA receptor block → stabilises membrane potential → stops seizure propagation</p>
+
+  <div class="section-label">PRITCHARD REGIMEN (India standard) — loading dose</div>
+
+  <div class="drug-box">
+    <div class="drug-name">IV route</div>
+    <div class="dose-line">4 ampoules of 50% MgSO₄ + 12 ml NS in 20 ml syringe = 4 g at ~20%</div>
+    <div class="dose-sub">Inject over 15–20 minutes — never fast push</div>
+    <div class="dose-sub">No pump: ~1 ml/min by hand</div>
+    <div class="dose-sub">Never give 50% undiluted IV</div>
+  </div>
+
+  <div class="drug-box">
+    <div class="drug-name">IM route (simultaneously)</div>
+    <div class="dose-line">5 g (5 ml of 50%) in each buttock = 10 g total</div>
+    <div class="dose-sub">Add 1 ml of 2% lignocaine each side — reduces pain</div>
+    <div class="dose-sub">Deep IM with Z-track technique</div>
+  </div>
+
+  <div class="section-label">MAINTENANCE DOSE — check all 3 before every dose</div>
+  <div class="monitor-grid">
+    <div class="monitor-item"><div class="monitor-label">Knee jerk (DTR)</div><div class="monitor-val">Must be present (+)</div></div>
+    <div class="monitor-item"><div class="monitor-label">Respiratory rate</div><div class="monitor-val">≥ 12 / min</div></div>
+    <div class="monitor-item monitor-full"><div class="monitor-label">Urine output</div><div class="monitor-val">≥ 100 ml in last 4 hours</div></div>
+  </div>
+  <p style="font-size:12px;color:var(--text2)">5 g IM q4h in alternate buttocks. Continue 24h post-delivery or 24h post-last seizure — whichever is later.</p>
+
+  <div style="margin-top:12px">
+    <div class="section-label">MgSO₄ TOXICITY</div>
+    <div class="alert-box"><span class="alert-text"><strong>First sign: Loss of knee jerk</strong> — serum Mg ~9–10 mEq/L. STOP next maintenance dose immediately.</span></div>
+    <div class="tox-grid">
+      <div class="tox-item"><div class="tox-level">9–10 mEq/L</div><div class="tox-sign tox-warn">Loss of DTR</div></div>
+      <div class="tox-item"><div class="tox-level">12 mEq/L</div><div class="tox-sign tox-danger">Resp. arrest</div></div>
+      <div class="tox-item"><div class="tox-level">15–24 mEq/L</div><div class="tox-sign tox-danger">Cardiac arrest</div></div>
+    </div>
+    <div class="antidote-box">
+      <div class="antidote-title">Antidote — draw and keep at bedside before starting MgSO₄</div>
+      <div class="antidote-text">Calcium gluconate 10 ml of 10% IV — slow push over 3 min</div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:6px">Oliguria alone is NOT a sign of toxicity.</p>
+  </div>
+</div>
+
+<!-- Step 3 Anti-HTN -->
+<div class="card card-blue">
+  <div class="card-header">Step 3 — Anti-HTN (prevent intracranial haemorrhage)</div>
+  <p style="font-size:12px;margin-bottom:8px;color:var(--text2)">Indication: BP ≥ 160/110 mmHg. Target: systolic 130–140, diastolic 80–90. Do NOT overcorrect — hypotension → fetal distress.</p>
+
+  <div class="drug-box">
+    <div class="drug-name">1st line: Labetalol IV</div>
+    <div class="drug-why">Alpha + beta blockade → rapid BP reduction without reflex tachycardia</div>
+    <div class="dose-line">20 mg IV → check BP at 15 min → 40 mg → 80 mg → 80 mg</div>
+    <div class="dose-sub">Max cumulative dose: 220 mg</div>
+    <div class="dose-sub">Contraindicated: asthma, bradycardia</div>
+  </div>
+
+  <div class="drug-box">
+    <div class="drug-name">2nd line: Hydralazine IV</div>
+    <div class="drug-why">Direct arteriolar vasodilator</div>
+    <div class="dose-line">5 mg IV over 20 min → repeat 10 mg if needed</div>
+    <div class="dose-sub">Max: 30 mg total. Watch for reflex tachycardia.</div>
+  </div>
+
+  <div class="drug-box">
+    <div class="drug-name">3rd line: Oral Nifedipine (NOT sublingual)</div>
+    <div class="drug-why">Calcium channel blocker — peripheral vasodilation</div>
+    <div class="dose-line">10 mg oral; repeat after 30 min if needed</div>
+    <div class="dose-sub">Caution: combined with MgSO₄ → neuromuscular blockade</div>
+  </div>
+</div>
+
+<!-- Step 4 Definitive -->
+<div class="card card-teal">
+  <div class="card-header">Step 4 — Definitive management</div>
+  <div class="step"><div class="step-num step-num-blue">1</div><div class="step-text">Terminate pregnancy — irrespective of gestational age</div></div>
+  <div class="step"><div class="step-num step-num-blue">2</div><div class="step-text">Mode: vaginal delivery preferred</div></div>
+  <div class="step"><div class="step-num step-num-blue">3</div><div class="step-text">Caesarean only for obstetric indication</div></div>
+  <div class="step"><div class="step-num step-num-blue">4</div><div class="step-text">Anaesthesia: general anaesthesia (not neuraxial — coagulopathy risk)</div></div>
+  <p class="note-text">Refer to tertiary care immediately after loading dose + first anti-HTN</p>
+</div>
+
+<!-- Recurrent seizure -->
+<div class="recurrent-card">
+  <div class="card-header">Recurrent seizure after MgSO₄?</div>
+  <div class="step"><div class="step-num">1</div><div><div class="step-text">Check: was maintenance given correctly? DTR present?</div></div></div>
+  <div class="step"><div class="step-num">2</div><div><div class="step-text">Additional 2 g MgSO₄ IV</div><div class="step-sub">2 amp 50% + 6 ml NS → 10 ml, inject over 10 min</div></div></div>
+  <div class="step"><div class="step-num">3</div><div><div class="step-text">Still seizing: Diazepam 10 mg IV slow push</div><div class="step-sub">Rescue only — causes neonatal respiratory depression</div></div></div>
+  <div class="step"><div class="step-num">4</div><div><div class="step-text">Reassess airway — intubate if GCS falling</div></div></div>
+  <div class="next-line-box">
+    <div class="next-line-title">NO DRUG? USE NEXT AVAILABLE</div>
+    <p style="font-size:13px;color:var(--amber-text);margin-bottom:3px">No labetalol → Hydralazine 5 mg IV</p>
+    <p style="font-size:13px;color:var(--amber-text);margin-bottom:3px">No hydralazine → Nifedipine 10 mg oral</p>
+    <p style="font-size:13px;color:var(--amber-text)">No pump → 1 ml/min IV push by hand</p>
+  </div>
+</div>
+
+<!-- Eclampsia with fetal distress -->
+<div class="card card-amber">
+  <div class="card-header">Eclampsia with fetal distress</div>
+  <div class="step"><div class="step-num step-num-amber">1</div><div><div class="step-text">Check fetal heart sounds after stabilising mother</div></div></div>
+  <div class="step"><div class="step-num step-num-amber">2</div><div><div class="step-text">FHS abnormal → rule out abruptio placentae</div></div></div>
+  <div class="step"><div class="step-num step-num-amber">3</div><div><div class="step-text">Abruption confirmed or FHS not recovering → emergency caesarean</div></div></div>
+  <div class="step"><div class="step-num step-num-amber">4</div><div><div class="step-text">FHS normalises → continue eclampsia management + plan delivery</div></div></div>
+</div>
+
+<div class="version-tag">Drzix · Eclampsia · v1 Classic · For demonstration only</div>
+</div>
+</body>
+</html>
