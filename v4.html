@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eclampsia · Drzix</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ── SHARED VARS ── */
+:root {
+  --bg:#F4F6F9;--surface:#FFFFFF;--surface2:#EEF1F7;--border:#DDE2EC;
+  --text:#0D1117;--text2:#4A5568;--text3:#8896AB;
+  --red:#E53E3E;--red-bg:#FFF5F5;--red-bd:#FEB2B2;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-bd:#FCD34D;
+  --green:#059669;--green-bg:#ECFDF5;--green-bd:#6EE7B7;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-bd:#93C5FD;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;--purple-bd:#C4B5FD;
+  --accent:#22C55E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── LAYER VISIBILITY ── */
+.layer{display:none}
+.layer.active{display:block}
+
+
+
+/* ── TOPBAR (shared) ── */
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:14px 20px;position:sticky;top:0;z-index:50;
+}
+.topbar-inner{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.tb-topic{font-size:17px;font-weight:700;color:var(--text)}
+.tb-sep{color:var(--text3)}
+.tb-sub{font-size:13px;font-weight:600;color:var(--text2)}
+.tb-badge{
+  margin-left:auto;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.07em;padding:3px 12px;
+}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+
+/* page scroll padding for fixed bottom nav */
+.page-content{padding-bottom:24px}
+
+/* ════════════════════════════════════
+   LAYER 1 — APP CARD
+════════════════════════════════════ */
+.steps{max-width:600px;margin:0 auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.step-card:hover{border-color:#BFC8D8}
+.step-card.open{border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.step-trigger{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
+.step-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;transition:all .2s}
+.num-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.num-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.num-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.step-card.open .step-num{background:var(--purple);color:#fff;border-color:var(--purple)}
+.step-meta{flex:1}
+.step-timing{font-size:11px;font-weight:600;letter-spacing:.06em;margin-bottom:2px;text-transform:uppercase}
+.timing-red{color:var(--red)}.timing-amber{color:var(--amber)}.timing-green{color:var(--green)}
+.step-title{font-size:16px;font-weight:600;color:var(--text);line-height:1.3}
+.step-arrow{font-size:18px;color:var(--text3);transition:transform .25s;flex-shrink:0}
+.step-card.open .step-arrow{transform:rotate(180deg)}
+.step-body{display:none;padding:0 18px 20px;border-top:1px solid var(--border)}
+.step-card.open .step-body{display:block}
+.why-text{font-size:13px;font-style:italic;color:var(--text2);margin:14px 0 12px;line-height:1.6;padding-left:12px;border-left:3px solid var(--purple-bd)}
+.actions{display:flex;flex-direction:column;gap:0}
+.action-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.action-row:last-child{border-bottom:none}
+.action-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.dot-red{background:var(--red)}.dot-amber{background:var(--amber)}.dot-green{background:var(--green)}.dot-blue{background:var(--blue)}
+.action-main{font-size:15px;font-weight:500;color:var(--text);line-height:1.45}
+.action-sub{font-size:12px;color:var(--text3);margin-top:2px;line-height:1.4}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin:14px 0 8px}
+.prep-box{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.prep-route{font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.prep-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.prep-row:last-child{margin-bottom:0}
+.amp-group{display:flex;gap:3px}
+.amp{width:9px;height:22px;border-radius:3px;background:var(--amber-bg);border:1px solid var(--amber-bd)}
+.vial{padding:2px 8px;border-radius:5px;background:var(--blue-bg);border:1px solid var(--blue-bd);font-size:11px;font-weight:700;color:var(--blue)}
+.syringe{padding:3px 10px;border-radius:10px;background:var(--green-bg);border:1px solid var(--green-bd);font-size:11px;font-weight:700;color:var(--green)}
+.prep-desc{font-size:13px;color:var(--text2)}
+.prep-note{font-size:11px;color:var(--text3);margin-top:4px}
+.monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.monitor-item{background:var(--surface2);border-radius:10px;padding:10px 12px}
+.monitor-item.full{grid-column:1/-1}
+.monitor-label{font-size:11px;color:var(--text3);margin-bottom:3px}
+.monitor-val{font-size:14px;font-weight:600;color:var(--text)}
+.tox-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 0 0;border-top:1px solid var(--border);margin-top:12px}
+.tox-toggle-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase}
+.tox-chev{font-size:14px;color:var(--text3);transition:transform .2s}
+.tox-chev.open{transform:rotate(180deg)}
+.tox-rung{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;margin-bottom:5px}
+.tox-r1{background:var(--amber-bg)}.tox-r2{background:#FFF0ED}.tox-r3{background:var(--red-bg)}
+.tox-icon{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.tox-val{font-size:11px;font-weight:700;min-width:64px}
+.tox-r1 .tox-val{color:var(--amber)}.tox-r2 .tox-val{color:#B83E10}.tox-r3 .tox-val{color:var(--red)}
+.tox-sign{font-size:13px;font-weight:500}
+.tox-r1 .tox-sign{color:var(--amber)}.tox-r2 .tox-sign{color:#B83E10}.tox-r3 .tox-sign{color:var(--red)}
+.antidote-box{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:12px 14px;margin-top:8px}
+.antidote-tag{font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;letter-spacing:.06em}
+.antidote-text{font-size:14px;font-weight:500;color:var(--green)}
+.drug-item{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.drug-item:last-child{margin-bottom:0}
+.drug-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.drug-dose{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:3px}
+.drug-ci{font-size:12px;color:var(--red)}
+.checklist{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check-row:last-child{border-bottom:none}
+.chk-box{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.chk-box.checked{background:var(--green-bg);border-color:var(--green-bd)}
+.chk-label{font-size:14px;font-weight:500;color:var(--text)}
+.chk-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.chk-progress{font-size:12px;color:var(--text3);text-align:right;margin-top:8px}
+.note-box{background:var(--surface2);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:13px;color:var(--text2);font-style:italic;line-height:1.55}
+.fallback-box{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:12px 14px;margin-top:10px}
+.fallback-tag{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.08em;margin-bottom:8px}
+.fallback-row{font-size:14px;color:var(--amber);padding:4px 0;border-bottom:1px solid var(--amber-bd);line-height:1.5}
+.fallback-row:last-child{border-bottom:none}
+.fallback-arr{color:var(--amber);opacity:.5;margin:0 4px}
+.emerg-header-card{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.emerg-tag{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.08em;margin-bottom:4px}
+.emerg-desc{font-size:14px;color:var(--red);line-height:1.5}
+.emerg-sticky{position:fixed;bottom:72px;left:0;right:0;padding:0 20px 10px;background:linear-gradient(to bottom,transparent,var(--bg) 40%);z-index:49;pointer-events:none}
+.emerg-sticky-inner{max-width:600px;margin:0 auto;pointer-events:all}
+.emerg-sticky-btn{width:100%;background:var(--red-bg);border:1.5px solid var(--red-bd);border-radius:14px;padding:13px 18px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--red);transition:opacity .15s;display:flex;align-items:center;justify-content:space-between}
+.emerg-sticky-btn:hover{opacity:.88}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text2);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0 0 14px}
+.version-tag{text-align:center;font-size:11px;color:var(--text3);padding:16px 20px 8px}
+
+/* ════════════════════════════════════
+   LAYER 2 — SEE DECK
+════════════════════════════════════ */
+.dots-wrap{max-width:560px;margin:0 auto;padding:20px 20px 0;display:flex;align-items:center;gap:12px}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;flex-shrink:0}
+.sdot.seen{background:var(--accent)}
+.sdot.active{background:var(--purple);width:24px;border-radius:4px}
+.dots-label{font-size:12px;color:var(--text3);margin-left:4px}
+.card-area{max-width:560px;margin:0 auto;padding:20px 20px 0}
+.q-number{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:10px}
+.q-text{font-size:24px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:20px}
+.tap-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:24px 20px;transition:border-color .2s,box-shadow .2s;overflow:hidden}
+.tap-card:hover{border-color:var(--purple-bd)}
+.tap-card.revealed{cursor:default;border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.tap-hint{display:flex;flex-direction:column;align-items:center;gap:12px;transition:opacity .2s}
+.tap-icon{width:52px;height:52px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px}
+.tap-label{font-size:14px;font-weight:500;color:var(--text3)}
+.see-answer{display:none;flex-direction:column;align-items:center;gap:14px;width:100%;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.see-answer.show{display:flex;opacity:1;transform:translateY(0)}
+.flow{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+.f-box{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;text-align:center;min-width:180px;max-width:100%;line-height:1.45}
+.f-row{display:flex;gap:8px;justify-content:center;width:100%;flex-wrap:wrap}
+.f-arr{font-size:16px;color:var(--text3);line-height:1}
+.f-gray{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.f-red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.f-amb{background:var(--amber-bg);border:1px solid var(--amber-bd);color:var(--amber)}
+.f-grn{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.f-blu{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue)}
+.f-pur{background:var(--purple-bg);border:1px solid var(--purple-bd);color:var(--purple)}
+.caption{font-size:14px;font-weight:500;color:var(--text2);text-align:center;line-height:1.65;padding:0 8px}
+.see-nav{position:fixed;bottom:72px;left:0;right:0;background:linear-gradient(to bottom,transparent,var(--bg) 35%);padding:20px 20px 10px;z-index:49}
+.see-nav-inner{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.see-btn{flex:1;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.see-btn:hover{opacity:.88}
+.see-btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.btn-dark{background:var(--text);color:#fff}
+.btn-green{background:var(--accent);color:#fff}
+.end-wrap{max-width:560px;margin:0 auto;padding:40px 20px 0;text-align:center}
+.end-tick{width:64px;height:64px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green-bd);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.end-title{font-size:26px;font-weight:800;color:var(--text);margin-bottom:10px}
+.end-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:340px;margin:0 auto 28px}
+.end-btns-v{display:flex;flex-direction:column;gap:10px}
+.end-btn-v{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.end-btn-v:hover{opacity:.88}
+
+/* ════════════════════════════════════
+   LAYER 3 — DIG DEEPER
+════════════════════════════════════ */
+.hero{max-width:680px;margin:0 auto;padding:32px 20px 20px}
+.hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--purple);margin-bottom:10px;text-transform:uppercase}
+.hero-title{font-size:34px;font-weight:800;color:var(--text);line-height:1.15;margin-bottom:14px}
+.hero-def{font-size:17px;font-weight:500;color:var(--text2);line-height:1.65;border-left:4px solid var(--accent);padding-left:16px;margin-bottom:20px}
+.hero-story{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;font-size:15px;color:var(--text2);line-height:1.75}
+.hero-story strong{color:var(--text);font-weight:600}
+.story-tag{display:inline-block;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 8px;margin-bottom:10px}
+.dd-section-label{max-width:680px;margin:28px auto 12px;padding:0 20px;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase}
+.cards{max-width:680px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;gap:10px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.cc:hover{border-color:#BFC8D8}
+.cc.open{border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.cc-trigger{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
+.cc-num{width:34px;height:34px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text2);flex-shrink:0;transition:background .2s,color .2s}
+.cc.open .cc-num{background:var(--purple);color:#fff;border-color:var(--purple)}
+.cc-text{flex:1}
+.cc-q{font-size:16px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:2px}
+.cc-hint{font-size:13px;color:var(--text3)}
+.cc-arrow{font-size:18px;color:var(--text3);transition:transform .25s;flex-shrink:0}
+.cc.open .cc-arrow{transform:rotate(180deg)}
+.cc-body{display:none;padding:0 20px 22px;border-top:1px solid var(--border)}
+.cc.open .cc-body{display:block}
+.dd-flow{display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 0 16px;width:100%}
+.dd-flow .f-box{font-size:14px}
+.cc-explain{font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px}
+.cc-explain strong{color:var(--text);font-weight:600}
+.pearl{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:14px 16px;margin-top:4px}
+.pearl-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:5px;text-transform:uppercase}
+.pearl p{font-size:14px;color:var(--amber);line-height:1.6}
+.danger{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:12px;padding:14px 16px;margin-top:4px}
+.danger-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--red);margin-bottom:5px;text-transform:uppercase}
+.danger p{font-size:14px;color:var(--red);line-height:1.6}
+.end-nav{position:sticky;bottom:72px;background:linear-gradient(to bottom,transparent,var(--bg) 35%);padding:20px 20px 10px;z-index:49}
+.end-nav-inner{max-width:680px;margin:0 auto;display:flex;gap:10px}
+.end-btn-n{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s;text-align:center}
+.end-btn-n:hover{opacity:.88}
+.btn-outline-n{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.btn-solid-n{background:var(--text);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     LAYER 1 — APP CARD
+══════════════════════════════════ -->
+<div class="layer active" id="layer1">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span class="tb-topic">Eclampsia</span>
+      <div class="tb-badge badge-red">EMERGENCY PROTOCOL</div>
+    </div>
+  </div>
+  <div class="page-content">
+    <!-- Emergency screen -->
+    <div id="emerg-screen" style="display:none">
+      <div class="steps">
+        <button class="back-btn" onclick="hideEmerg()">← Back to protocol</button>
+        <div class="emerg-header-card">
+          <div class="emerg-tag">RECURRENT SEIZURE</div>
+          <div class="emerg-desc">MgSO₄ given but seizure has recurred. Follow these steps now.</div>
+        </div>
+        <div class="step-card open">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">1</div>
+            <div class="step-meta"><div class="step-timing timing-red">Check first</div><div class="step-title">Was maintenance given correctly?</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">DTR present before that dose?</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">RR was ≥ 12/min?</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Urine output ≥ 100 ml in last 4h?</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">2</div>
+            <div class="step-meta"><div class="step-timing timing-red">Give now</div><div class="step-title">Additional 2 g MgSO₄ IV</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="prep-box">
+              <div class="prep-row"><div class="amp-group"><div class="amp"></div><div class="amp"></div></div><span class="prep-desc">2 amp (50%) + 6 ml NS → 10 ml. Inject over 10 min.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">3</div>
+            <div class="step-meta"><div class="step-timing timing-red">Still seizing?</div><div class="step-title">Diazepam 10 mg IV slow push</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body"><div class="note-box">Rescue only — causes neonatal respiratory depression.</div></div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">4</div>
+            <div class="step-meta"><div class="step-timing timing-red">Reassess</div><div class="step-title">Airway — if GCS falling</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body"><div class="note-box">Prepare for intubation. Escalate immediately.</div></div>
+        </div>
+        <div class="fallback-box">
+          <div class="fallback-tag">NO DRUG? USE NEXT AVAILABLE</div>
+          <div class="fallback-row">No labetalol<span class="fallback-arr">→</span>Hydralazine 5 mg IV</div>
+          <div class="fallback-row">No hydralazine<span class="fallback-arr">→</span>Nifedipine 10 mg oral</div>
+          <div class="fallback-row">No pump<span class="fallback-arr">→</span>1 ml/min IV push by hand</div>
+        </div>
+      </div>
+    </div>
+    <!-- Main protocol -->
+    <div id="main-protocol">
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">1</div>
+            <div class="step-meta"><div class="step-timing timing-red">0 – 1 min</div><div class="step-title">Airway + position</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Left lateral position</div><div class="action-sub">Prevents aortocaval compression + aspiration</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Raise bed rails</div><div class="action-sub">Prevent fall injury during convulsion</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Clear airway — jaw thrust if obstructed</div><div class="action-sub">Do not force mouth open</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">O₂ mask 8–10 L/min</div><div class="action-sub">Target SpO₂ ≥ 95%</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">IV access ×2 — 18G or larger</div><div class="action-sub">Draw blood: LFT · S.Creat · CBC · coag</div></div></div>
+            </div>
+            <div class="note-box">Do NOT leave patient. Call for help while doing above.</div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">2</div>
+            <div class="step-meta"><div class="step-timing timing-red">1 – 20 min</div><div class="step-title">MgSO₄ loading dose</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">NMDA receptor block → stabilises neuronal membrane → stops seizure. Does NOT lower BP.</div>
+            <div class="section-title">Loading dose — give both simultaneously</div>
+            <div class="prep-box">
+              <div class="prep-route">IV route</div>
+              <div class="prep-row"><div class="amp-group"><div class="amp"></div><div class="amp"></div><div class="amp"></div><div class="amp"></div></div><span class="prep-desc">×4 amp (50% MgSO₄, 1 g each)</span></div>
+              <div class="prep-row"><span style="color:var(--text3);font-weight:700">+</span><div class="vial">NS</div><span class="prep-desc">12 ml normal saline</span></div>
+              <div class="prep-row"><span style="color:var(--green);font-weight:700">=</span><div class="syringe">20 ml syringe</div><span class="prep-desc">4 g at ~20% · inject over 15–20 min</span></div>
+              <div class="prep-note">No pump: 1 ml/min manually. Never give 50% undiluted IV.</div>
+            </div>
+            <div class="prep-box">
+              <div class="prep-route">IM route (simultaneous)</div>
+              <div class="prep-row"><div class="amp-group"><div class="amp"></div><div class="amp"></div><div class="amp"></div><div class="amp"></div><div class="amp"></div></div><span class="prep-desc">×5 amp each buttock = 10 g total</span></div>
+              <div class="prep-note">Add 1 ml of 2% lignocaine per side. Z-track. Deep IM.</div>
+            </div>
+            <div class="section-title">Maintenance — check ALL 3 before every dose</div>
+            <div class="monitor-grid">
+              <div class="monitor-item"><div class="monitor-label">Knee jerk (DTR)</div><div class="monitor-val">Must be present</div></div>
+              <div class="monitor-item"><div class="monitor-label">Resp rate</div><div class="monitor-val">≥ 12 / min</div></div>
+              <div class="monitor-item full"><div class="monitor-label">Urine output</div><div class="monitor-val">≥ 100 ml / 4 hours</div></div>
+            </div>
+            <div class="note-box">5 g IM q4h alternate buttocks. Continue 24h post-delivery or 24h post-last seizure — whichever is later.</div>
+            <div class="tox-toggle" onclick="toggleTox()">
+              <span class="tox-toggle-label">MgSO₄ toxicity signs</span>
+              <span class="tox-chev" id="tox-chev">&#8964;</span>
+            </div>
+            <div id="tox-body" style="display:none;padding-top:10px">
+              <div class="tox-rung tox-r1"><span class="tox-icon">🦵</span><span class="tox-val">9–10 mEq/L</span><span class="tox-sign">Loss of knee jerk — hold next dose</span></div>
+              <div class="tox-rung tox-r2"><span class="tox-icon">🫁</span><span class="tox-val">12 mEq/L</span><span class="tox-sign">Respiratory arrest</span></div>
+              <div class="tox-rung tox-r3"><span class="tox-icon">❤️</span><span class="tox-val">15–24 mEq/L</span><span class="tox-sign">Cardiac arrest</span></div>
+              <div class="antidote-box"><div class="antidote-tag">ANTIDOTE — draw and keep at bedside</div><div class="antidote-text">Ca gluconate 10 ml of 10% IV — slow push over 3 min</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-amber">3</div>
+            <div class="step-meta"><div class="step-timing timing-amber">20 – 30 min</div><div class="step-title">Anti-HTN if BP ≥ 160/110</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">Prevent intracranial haemorrhage. Target: 130–140 / 80–90 mmHg. Do NOT overcorrect.</div>
+            <div class="drug-item"><div class="drug-name">1st — Labetalol IV</div><div class="drug-dose">20 mg → 15 min → 40 mg → 80 mg → 80 mg. Max 220 mg.</div><div class="drug-ci">Contraindicated: asthma · bradycardia</div></div>
+            <div class="drug-item"><div class="drug-name">2nd — Hydralazine IV</div><div class="drug-dose">5 mg over 20 min → 10 mg. Max 30 mg.</div><div class="drug-ci">Watch: reflex tachycardia</div></div>
+            <div class="drug-item"><div class="drug-name">3rd — Nifedipine oral (NOT sublingual)</div><div class="drug-dose">10 mg oral. Repeat after 30 min.</div><div class="drug-ci">Caution with MgSO₄ → neuromuscular blockade</div></div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-green">4</div>
+            <div class="step-meta"><div class="step-timing timing-green">30 – 60 min</div><div class="step-title">Delivery + refer</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Terminate pregnancy — irrespective of gestational age</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Mode: vaginal preferred</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Caesarean only for obstetric indication</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Anaesthesia: general (not neuraxial)</div><div class="action-sub">Coagulopathy risk in HELLP</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Refer after loading dose + first anti-HTN</div></div></div>
+            </div>
+            <div class="section-title">PHC referral checklist</div>
+            <div class="checklist" id="chklist">
+              <div class="check-row" onclick="chk(0)"><div class="chk-box" id="ck0"></div><div><div class="chk-label">Loading dose given</div><div class="chk-sub">MgSO₄ IV + IM</div></div></div>
+              <div class="check-row" onclick="chk(1)"><div class="chk-box" id="ck1"></div><div><div class="chk-label">Anti-HTN given</div><div class="chk-sub">Labetalol or hydralazine</div></div></div>
+              <div class="check-row" onclick="chk(2)"><div class="chk-box" id="ck2"></div><div><div class="chk-label">Ca gluconate drawn</div><div class="chk-sub">10 ml of 10% — at bedside</div></div></div>
+              <div class="check-row" onclick="chk(3)"><div class="chk-box" id="ck3"></div><div><div class="chk-label">Foley catheter</div><div class="chk-sub">Monitor urine output</div></div></div>
+              <div class="check-row" onclick="chk(4)"><div class="chk-box" id="ck4"></div><div><div class="chk-label">FHS checked</div><div class="chk-sub">Rule out fetal distress</div></div></div>
+              <div class="check-row" onclick="chk(5)"><div class="chk-box" id="ck5"></div><div><div class="chk-label">Referral note ready</div><div class="chk-sub">Drug given + time + BP</div></div></div>
+            </div>
+            <div class="chk-progress" id="ck-prog">0 / 6 complete</div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">5</div>
+            <div class="step-meta"><div class="step-timing timing-red">If needed</div><div class="step-title">Fetal distress during eclampsia</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Check fetal heart sounds after stabilising mother</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">FHS abnormal → rule out abruptio placentae</div><div class="action-sub">Most common complication of severe PE</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Abruption confirmed or FHS not recovering → emergency caesarean</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">FHS normalises after seizure → continue eclampsia management</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="max-width:600px;margin:0 auto;padding:8px 20px 32px;display:flex;flex-direction:column;gap:10px">
+      <button onclick="switchLayer(2)" style="width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;background:var(--purple);color:#fff;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Understand the concept →</button>
+    </div>
+    <div class="version-tag">Drzix · Eclampsia · v1.0 · For demonstration only</div>
+    </div>
+  </div>
+  <!-- Sticky emergency button -->
+  <div class="emerg-sticky" id="emerg-sticky">
+    <div class="emerg-sticky-inner">
+      <button class="emerg-sticky-btn" onclick="showEmerg()">
+        <span>Seizure recurring? Tap for next step</span><span>&#8599;</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     LAYER 2 — SEE DECK
+══════════════════════════════════ -->
+<div class="layer" id="layer2">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button onclick="switchLayer(1)" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;padding:0;display:flex;align-items:center;gap:4px">← Protocol</button>
+      <span class="tb-sep">·</span>
+      <span class="tb-topic">SEE</span>
+      <div class="tb-badge badge-purple">3 CONCEPTS</div>
+    </div>
+  </div>
+  <div class="page-content" id="see-content"></div>
+  <div class="see-nav" id="see-nav">
+    <div class="see-nav-inner">
+      <button class="see-btn btn-ghost" onclick="seeRestart()">Start over</button>
+      <button class="see-btn btn-dark" id="see-next-btn" onclick="seeNext()" disabled>Tap card first</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     LAYER 3 — DIG DEEPER
+══════════════════════════════════ -->
+<div class="layer" id="layer3">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button onclick="switchLayer(2)" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;padding:0;display:flex;align-items:center;gap:4px">← SEE</button>
+      <span class="tb-sep">·</span>
+      <span class="tb-topic">Dig Deeper</span>
+      <div class="tb-badge badge-purple">UNDERSTAND</div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="hero">
+      <div class="hero-eyebrow">Obstetrics · Emergency</div>
+      <div class="hero-title">Eclampsia</div>
+      <div class="hero-def">Severe pre-eclampsia + generalised tonic-clonic seizures — caused by a failing placenta that poisons the mother's blood vessels.</div>
+      <div class="hero-story">
+        <div class="story-tag">REAL PATIENT</div>
+        <strong>Priya. 22 years old. First pregnancy. 34 weeks.</strong><br><br>
+        Her husband rushes her to your PHC at 11 PM. Two seizures at home. She arrives postictal — eyes deviated, foaming at mouth, BP 178/116. No pump. Nearest hospital 60 km away.<br><br>
+        <strong>Every concept below explains what is happening inside her body right now.</strong>
+      </div>
+    </div>
+    <div class="dd-section-label">15 concepts — tap any question</div>
+    <div class="cards" id="dd-cards">
+      <!-- Cards injected by JS -->
+    </div>
+    <div class="end-nav">
+      <div class="end-nav-inner">
+        <button class="end-btn-n btn-outline-n" onclick="switchLayer(2)">← SEE deck</button>
+        <button class="end-btn-n btn-solid-n" onclick="switchLayer(1)">← Protocol</button>
+      </div>
+    </div>
+    <div class="version-tag">Drzix · Eclampsia · Dig Deeper · For demonstration only</div>
+  </div>
+</div>
+
+
+
+<script>
+/* ── LAYER SWITCHER ── */
+function switchLayer(n) {
+  document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+  document.getElementById('layer' + n).classList.add('active');
+  window.scrollTo(0, 0);
+  if (n === 2 && !seeInitialised) initSee();
+  if (n === 3 && !ddInitialised) initDD();
+}
+
+/* ── LAYER 1 ── */
+function togStep(trigger) {
+  trigger.closest('.step-card').classList.toggle('open');
+}
+let toxOpen = false;
+function toggleTox() {
+  toxOpen = !toxOpen;
+  document.getElementById('tox-body').style.display = toxOpen ? 'block' : 'none';
+  document.getElementById('tox-chev').classList.toggle('open', toxOpen);
+}
+const checks = Array(6).fill(false);
+const SVG_CHK = `<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l4 4 6-8" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function chk(i) {
+  checks[i] = !checks[i];
+  const b = document.getElementById('ck' + i);
+  b.classList.toggle('checked', checks[i]);
+  b.innerHTML = checks[i] ? SVG_CHK : '';
+  document.getElementById('ck-prog').textContent = checks.filter(Boolean).length + ' / 6 complete';
+}
+function showEmerg() {
+  document.getElementById('main-protocol').style.display = 'none';
+  document.getElementById('emerg-screen').style.display = 'block';
+  document.getElementById('emerg-sticky').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+function hideEmerg() {
+  document.getElementById('emerg-screen').style.display = 'none';
+  document.getElementById('main-protocol').style.display = 'block';
+  document.getElementById('emerg-sticky').style.display = 'block';
+}
+
+/* ── LAYER 2 — SEE DECK ── */
+let seeInitialised = false, seeCur = 0, seeRevealed = false;
+const SEE_CARDS = [
+  {
+    q: "What is eclampsia — in one line?",
+    caption: "Everything flows from one failed event. The placenta never remodelled properly.",
+    flow: [{box:"Abnormal placenta",c:"f-gray"},{arr:"↓"},{box:"Placental ischemia → toxic signals",c:"f-amb"},{arr:"↓"},{box:"Endothelial injury throughout body",c:"f-amb"},{arr:"↓"},{row:[{box:"BP spikes",c:"f-red"},{box:"Brain edema",c:"f-red"}]},{arr:"↓"},{box:"Generalised seizure = Eclampsia",c:"f-red"}]
+  },
+  {
+    q: "MgSO₄ stops the seizure. So why is the BP still 178/116?",
+    caption: "MgSO₄ and anti-HTN are two separate interventions. One quiets the brain. One controls the pipes.",
+    flow: [{box:"MgSO₄ → blocks NMDA receptors in brain",c:"f-pur"},{arr:"↓"},{row:[{box:"Cerebral edema ↓",c:"f-grn"},{box:"No seizure",c:"f-grn"}]},{arr:"↓ but"},{box:"Zero effect on vascular smooth muscle",c:"f-gray"},{arr:"↓"},{box:"BP remains 178/116 → give labetalol separately",c:"f-red"}]
+  },
+  {
+    q: "You've controlled BP and stopped seizures. Why does she still need delivery?",
+    caption: "Every drug you give is damage control. The factory making the poison is still running.",
+    flow: [{box:"Ischemic placenta keeps secreting sFLT-1, endoglin",c:"f-red"},{arr:"↓ drugs only manage effects"},{row:[{box:"MgSO₄ → brain quiets",c:"f-amb"},{box:"Labetalol → BP lowers",c:"f-amb"}]},{arr:"↓ source still running"},{box:"Delivery → placenta out → signals stop",c:"f-grn"},{arr:"↓"},{box:"BP normalises within 12 weeks",c:"f-grn"}]
+  }
+];
+
+function buildFlow(flow) {
+  return flow.map(s => {
+    if (s.arr) return `<div class="f-arr">${s.arr}</div>`;
+    if (s.row) return `<div class="f-row">${s.row.map(b=>`<div class="f-box ${b.c}">${b.box}</div>`).join('')}</div>`;
+    return `<div class="f-box ${s.c}">${s.box}</div>`;
+  }).join('');
+}
+
+function initSee() {
+  seeInitialised = true;
+  seeCur = 0;
+  renderSee();
+}
+
+function renderSee() {
+  seeRevealed = false;
+  const c = SEE_CARDS[seeCur];
+  const isLast = seeCur === SEE_CARDS.length - 1;
+  const dots = SEE_CARDS.map((_,i) => `<div class="sdot ${i<seeCur?'seen':i===seeCur?'active':''}"></div>`).join('');
+  document.getElementById('see-content').innerHTML = `
+    <div class="dots-wrap">${dots}<span class="dots-label">${seeCur+1} of ${SEE_CARDS.length}</span></div>
+    <div class="card-area">
+      <div class="q-number">Concept ${seeCur+1}</div>
+      <div class="q-text">${c.q}</div>
+      <div class="tap-card" id="stc" onclick="seeReveal()">
+        <div class="tap-hint" id="sth"><div class="tap-icon">👁</div><div class="tap-label">Tap to reveal</div></div>
+        <div class="see-answer" id="sans"><div class="flow">${buildFlow(c.flow)}</div><div class="caption">${c.caption}</div></div>
+      </div>
+    </div>`;
+  const nb = document.getElementById('see-next-btn');
+  nb.disabled = true;
+  nb.textContent = 'Tap card first';
+  nb.className = 'see-btn btn-dark';
+  document.getElementById('see-nav').style.display = 'block';
+}
+
+function seeReveal() {
+  if (seeRevealed) return;
+  seeRevealed = true;
+  document.getElementById('stc').classList.add('revealed');
+  const th = document.getElementById('sth');
+  th.style.opacity = '0'; th.style.pointerEvents = 'none';
+  setTimeout(() => {
+    th.style.display = 'none';
+    const ans = document.getElementById('sans');
+    ans.style.display = 'flex';
+    requestAnimationFrame(() => requestAnimationFrame(() => ans.classList.add('show')));
+  }, 160);
+  const nb = document.getElementById('see-next-btn');
+  nb.disabled = false;
+  const isLast = seeCur === SEE_CARDS.length - 1;
+  nb.textContent = isLast ? 'Dig Deeper →' : 'Next →';
+  nb.className = isLast ? 'see-btn btn-green' : 'see-btn btn-dark';
+}
+
+function seeNext() {
+  if (!seeRevealed) return;
+  if (seeCur < SEE_CARDS.length - 1) { seeCur++; renderSee(); }
+  else { showSeeEnd(); }
+}
+
+function seeRestart() { seeCur = 0; renderSee(); }
+
+function showSeeEnd() {
+  document.getElementById('see-content').innerHTML = `
+    <div class="end-wrap">
+      <div class="end-tick">✓</div>
+      <div class="end-title">You've seen it.</div>
+      <div class="end-sub">3 core ideas. Now go deeper — understand the mechanisms, symptoms, diagnosis, and management.</div>
+      <div class="end-btns-v">
+        <button class="end-btn-v btn-green" onclick="switchLayer(3)">Dig Deeper →</button>
+        <button class="end-btn-v btn-ghost" style="background:var(--surface);border:1px solid var(--border);color:var(--text2)" onclick="seeRestart()">Start over</button>
+      </div>
+    </div>`;
+  document.getElementById('see-nav').style.display = 'none';
+}
+
+/* ── LAYER 3 — DIG DEEPER ── */
+let ddInitialised = false;
+
+function togDD(n) {
+  document.getElementById('ddc'+n).classList.toggle('open');
+}
+
+function initDD() {
+  ddInitialised = true;
+  // Cards are already in HTML below, injected via this function
+  const cardsHtml = getDDCards();
+  document.getElementById('dd-cards').innerHTML = cardsHtml;
+}
+
+function getDDCards() {
+  return `
+  <div class="cc" id="ddc1"><div class="cc-trigger" onclick="togDD(1)"><div class="cc-num">1</div><div class="cc-text"><div class="cc-q">Who is at risk of becoming Priya? What makes a woman vulnerable to eclampsia?</div><div class="cc-hint">Risk factors · primigravida · chronic HTN · twins</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:140px"><div class="f-box f-red" style="font-size:13px;margin-bottom:8px">Highest risk</div><div style="font-size:14px;color:var(--text2);line-height:2;padding:0 4px">Primigravida<br>New paternity<br>Age &lt;18 or ≥40<br>Twin pregnancy<br>Molar pregnancy<br>Previous PIH</div></div><div style="flex:1;min-width:140px"><div class="f-box f-amb" style="font-size:13px;margin-bottom:8px">Significant risk</div><div style="font-size:14px;color:var(--text2);line-height:2;padding:0 4px">Chronic HTN<br>Diabetes<br>CKD<br>APLA syndrome<br>SLE<br>Obesity</div></div></div></div><p class="cc-explain">Priya is a primigravida — first pregnancy, first exposure to this man's placental antigens. <strong>New paternity resets the risk to primigravida level even in a multigravida.</strong> A woman with 3 safe pregnancies with husband A can develop severe PIH with husband B.</p><div class="pearl"><div class="pearl-tag">Protective factor — exam only</div><p>Smoking is the only known protective factor for PIH. Never a clinical recommendation.</p></div></div></div>
+
+  <div class="cc" id="ddc2"><div class="cc-trigger" onclick="togDD(2)"><div class="cc-num">2</div><div class="cc-text"><div class="cc-q">What does Priya actually feel before the seizure hits? The symptoms in order.</div><div class="cc-hint">Impending eclampsia · headache · epigastric pain · vision</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Severe PE developing → warning window opens</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-red" style="font-size:13px">Severe headache<br><span style="font-weight:400;font-size:11px">Not relieved by paracetamol · 70%</span></div><div class="f-box f-red" style="font-size:13px">Epigastric pain<br><span style="font-weight:400;font-size:11px">Liver capsule stretching</span></div><div class="f-box f-red" style="font-size:13px">Visual disturbances<br><span style="font-weight:400;font-size:11px">Scotoma · diplopia · blindness</span></div></div><div class="f-arr">↓ if untreated</div><div class="f-box f-red">Generalised seizure = Eclampsia</div></div><p class="cc-explain">These three symptoms are the body's last warning. <strong>Epigastric pain in a hypertensive pregnant woman is not acidity. It is a liver emergency until proven otherwise.</strong></p><div class="danger"><div class="danger-tag">The window you must not miss</div><p>Give MgSO₄ during impending eclampsia and you prevent the seizure entirely. Miss it and you are managing a much harder situation.</p></div></div></div>
+
+  <div class="cc" id="ddc3"><div class="cc-trigger" onclick="togDD(3)"><div class="cc-num">3</div><div class="cc-text"><div class="cc-q">How do you actually diagnose eclampsia — mild PE vs severe PE vs eclampsia?</div><div class="cc-hint">BP thresholds · proteinuria · end-organ damage · diagnosis ladder</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">BP ≥ 140/90 on 2 occasions 4h apart · after 20 weeks</div><div class="f-arr">↓</div><div class="f-row"><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-blu" style="font-size:12px;width:100%">Gestational HTN</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.6">BP raised<br>No proteinuria<br>No end-organ damage</div></div><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-amb" style="font-size:12px;width:100%">Mild PE</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.6">140–159/90–109<br>Proteinuria ≥300mg/24h<br>No end-organ damage</div></div><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-red" style="font-size:12px;width:100%">Severe PE</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.6">≥160/110<br>Platelets &lt;1 lakh<br>Creat ≥1.1 · LFT ≥2×</div></div></div><div class="f-arr">↓ severe PE + seizure</div><div class="f-box f-red">Eclampsia — clinical diagnosis</div></div><p class="cc-explain"><strong>Eclampsia is a clinical diagnosis.</strong> You do not need a blood test to diagnose it. Investigations confirm end-organ damage and guide management — they do not make the diagnosis.</p><div class="pearl"><div class="pearl-tag">ACOG 2013</div><p>Severe PE can be diagnosed without proteinuria if end-organ damage is present. Don't wait for 24h urine if BP is 170/115 + platelets 80,000.</p></div></div></div>
+
+  <div class="cc" id="ddc4"><div class="cc-trigger" onclick="togDD(4)"><div class="cc-num">4</div><div class="cc-text"><div class="cc-q">When does eclampsia happen — and when after delivery can you stop worrying?</div><div class="cc-hint">Antepartum · intrapartum · postpartum · atypical · time periods</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:110px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-red" style="font-size:13px;width:100%">Antepartum</div><div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7">During pregnancy<br>Most common<br>Worst prognosis</div></div><div style="flex:1;min-width:110px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-amb" style="font-size:13px;width:100%">Intrapartum</div><div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7">During labour<br>Less common</div></div><div style="flex:1;min-width:110px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-blu" style="font-size:13px;width:100%">Postpartum</div><div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.7">Within 48 hours<br>of delivery</div></div></div><div class="f-arr">↓ outside these = atypical</div><div class="f-box f-pur">Atypical: &gt;48h postpartum · &lt;20 wks · no PE criteria</div></div><p class="cc-explain"><strong>You stop worrying 48 hours after delivery — not at the moment of delivery.</strong> MgSO₄ continues for 24h post-delivery. Any postpartum woman with headache + high BP needs MgSO₄, not discharge.</p><div class="danger"><div class="danger-tag">Postpartum trap</div><p>"She delivered fine" is not reassurance. Late postpartum eclampsia up to 4 weeks has been reported.</p></div></div></div>
+
+  <div class="cc" id="ddc5"><div class="cc-trigger" onclick="togDD(5)"><div class="cc-num">5</div><div class="cc-text"><div class="cc-q">Why did Priya's BP only rise after 20 weeks — not from day one?</div><div class="cc-hint">Trophoblast invasion · spiral arteries · two phases</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-grn">Normal: trophoblast invades spiral arteries in 2 phases</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-blu" style="font-size:13px">Phase 1 · 0–12 wks<br>Decidual segment</div><div class="f-box f-blu" style="font-size:13px">Phase 2 · 16–20 wks<br>Myometrial segment</div></div><div class="f-arr">↓ In Priya — Phase 2 never happened</div><div class="f-box f-red">Spiral arteries stay narrow · high resistance</div><div class="f-arr">↓</div><div class="f-box f-amb">Placental ischemia → symptoms after 20 wks</div></div><p class="cc-explain">Trophoblasts invade spiral arteries and convert them from narrow tubes into wide channels. <strong>In Priya, Phase 2 failed.</strong> Her spiral arteries stayed narrow. The placenta started starving. The clock started ticking.</p><div class="pearl"><div class="pearl-tag">Exception</div><p>Molar pregnancy causes PE before 20 weeks — trophoblastic tissue is abnormal from conception.</p></div></div></div>
+
+  <div class="cc" id="ddc6"><div class="cc-trigger" onclick="togDD(6)"><div class="cc-num">6</div><div class="cc-text"><div class="cc-q">What is the ischemic placenta releasing — and why does it raise BP?</div><div class="cc-hint">sFLT-1 · endoglin · VEGF · vasoconstrictors</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-red">Starving placenta releases signals</div><div class="f-arr">↓</div><div class="f-row"><div style="flex:1;min-width:130px"><div class="f-box f-red" style="font-size:13px;margin-bottom:6px">Vasoconstrictors ↑</div><div style="font-size:13px;color:var(--red);line-height:1.9;padding:0 4px">sFLT-1 traps VEGF<br>Soluble endoglin<br>Thromboxane A₂</div></div><div style="flex:1;min-width:130px"><div class="f-box f-grn" style="font-size:13px;margin-bottom:6px">Vasodilators ↓</div><div style="font-size:13px;color:var(--green);line-height:1.9;padding:0 4px">VEGF gone<br>PlGF gone<br>Nitric oxide ↓</div></div></div><div class="f-arr">↓</div><div class="f-box f-red">Body-wide vasoconstriction → BP 178/116</div></div><p class="cc-explain">sFLT-1 acts as a decoy receptor — grabs free VEGF and PlGF before they can vasodilate. <strong>Her BP isn't high because her heart works harder. It's high because her pipes are narrower.</strong></p><div class="pearl"><div class="pearl-tag">Best predictor</div><p>sFLT-1 : PlGF ratio — appears weeks before clinical symptoms. Replacing the outdated roll-over test.</p></div></div></div>
+
+  <div class="cc" id="ddc7"><div class="cc-trigger" onclick="togDD(7)"><div class="cc-num">7</div><div class="cc-text"><div class="cc-q">Priya has protein in her urine. Why — and why the kidney first?</div><div class="cc-hint">Glomeruloendotheliosis · filtration barrier</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-amb">Systemic endothelial injury</div><div class="f-arr">↓ kidney first because</div><div class="f-box f-blu">The glomerulus IS endothelium — filters 180 L/day</div><div class="f-arr">↓</div><div class="f-box f-amb">Glomeruloendotheliosis — cells swell, block lumen</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-red" style="font-size:13px">Filtration drops<br>→ oliguria · ↑creatinine</div><div class="f-box f-red" style="font-size:13px">Barrier breaks<br>→ proteinuria</div></div></div><p class="cc-explain"><strong>Proteinuria is the kidney screaming first.</strong> The glomerulus is the same endothelium being destroyed everywhere else — but because it filters constantly, even small damage shows up immediately.</p><div class="pearl"><div class="pearl-tag">Threshold</div><p>S.creatinine ≥ 1.1 mg/dl = end-organ damage. Never use ALP as liver marker in PIH — the placenta makes ALP normally. Use SGOT/SGPT.</p></div></div></div>
+
+  <div class="cc" id="ddc8"><div class="cc-trigger" onclick="togDD(8)"><div class="cc-num">8</div><div class="cc-text"><div class="cc-q">Priya has a pounding headache and blurred vision. What is happening in her brain?</div><div class="cc-hint">Autoregulation failure · PRES · occipital lobe</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-pur" style="font-size:12px;width:100%">BBB leaks</div><div class="f-arr">↓</div><div class="f-box f-gray" style="font-size:12px;width:100%">Brain edema</div><div class="f-arr">↓</div><div class="f-box f-red" style="font-size:12px;width:100%">Excitatory NTs → Seizure</div></div><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-blu" style="font-size:12px;width:100%">Autoregulation fails</div><div class="f-arr">↓</div><div class="f-box f-gray" style="font-size:12px;width:100%">Hyperperfusion</div><div class="f-arr">↓</div><div class="f-box f-red" style="font-size:12px;width:100%">Occipital → headache · vision loss</div></div></div></div><p class="cc-explain">Two simultaneous brain attacks. <strong>Blood is ramming into the brain at full arterial pressure.</strong> The occipital lobe is most vulnerable — which is why visual symptoms appear before the seizure.</p><div class="pearl"><div class="pearl-tag">MRI pearl</div><p>PRES — Posterior Reversible Encephalopathy Syndrome. IOC for atypical eclampsia. Reversible in most cases.</p></div></div></div>
+
+  <div class="cc" id="ddc9"><div class="cc-trigger" onclick="togDD(9)"><div class="cc-num">9</div><div class="cc-text"><div class="cc-q">You give MgSO₄. Why does it stop the seizure — but do nothing for Priya's BP?</div><div class="cc-hint">NMDA block · membrane stabilisation · not a vasodilator</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-red">NMDA receptors overactivated</div><div class="f-arr">↓ glutamate floods in → membrane fires</div><div class="f-box f-grn">Mg²⁺ physically blocks the NMDA channel</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-grn" style="font-size:13px">↓ cerebral edema</div><div class="f-box f-grn" style="font-size:13px">Membrane quiet</div></div><div class="f-arr">↓</div><div class="f-box f-grn">No seizure</div><div class="f-arr" style="color:var(--red)">✕ No effect on blood vessels → BP unchanged</div></div><p class="cc-explain">MgSO₄ works entirely in the brain. <strong>This is why you always give MgSO₄ and anti-HTN as two separate parallel treatments.</strong> Skipping anti-HTN because "MgSO₄ is onboard" causes intracranial haemorrhage.</p><div class="pearl"><div class="pearl-tag">Therapeutic window</div><p>4–7 mEq/L therapeutic. Toxicity at 9 mEq/L. Excreted entirely by kidney — monitor DTR before every dose.</p></div></div></div>
+
+  <div class="cc" id="ddc10"><div class="cc-trigger" onclick="togDD(10)"><div class="cc-num">10</div><div class="cc-text"><div class="cc-q">Why labetalol over nifedipine or hydralazine as first line?</div><div class="cc-hint">Alpha + beta block · no reflex tachycardia · stepwise dosing</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Hydralazine</div><div class="f-arr">↓</div><div class="f-box f-amb" style="font-size:12px;width:100%">Reflex tachycardia</div></div><div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-amb" style="font-size:12px;width:100%">Nifedipine SL</div><div class="f-arr">↓</div><div class="f-box f-red" style="font-size:12px;width:100%">BP crash → fetal distress</div></div><div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-grn" style="font-size:12px;width:100%">Labetalol IV</div><div class="f-arr">↓</div><div class="f-box f-grn" style="font-size:12px;width:100%">Smooth BP drop · stable HR</div></div></div></div><p class="cc-explain"><strong>Labetalol blocks alpha (reduces vessel tone) and beta (prevents reflex tachycardia) simultaneously.</strong> Stepwise 20→40→80→80 mg gives predictable control. Sublingual nifedipine: never. Ever.</p><div class="danger"><div class="danger-tag">Never do this</div><p>Sublingual nifedipine → unpredictable BP drop → uteroplacental ischaemia → acute fetal distress.</p></div></div></div>
+
+  <div class="cc" id="ddc11"><div class="cc-trigger" onclick="togDD(11)"><div class="cc-num">11</div><div class="cc-text"><div class="cc-q">MgSO₄ toxicity — what happens step by step, and what do you do?</div><div class="cc-hint">DTR · respiratory arrest · calcium gluconate</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Therapeutic: 4–7 mEq/L</div><div class="f-arr">↓ Mg accumulates if kidneys slow</div><div class="f-box f-amb">9–10 mEq/L — Knee jerk disappears · STOP next dose</div><div class="f-arr">↓</div><div class="f-box f-red">12 mEq/L — Respiratory arrest</div><div class="f-arr">↓</div><div class="f-box f-red">15–24 mEq/L — Cardiac arrest</div><div class="f-arr">↓ antidote</div><div class="f-box f-grn">Ca gluconate 10 ml of 10% IV slow push over 3 min</div></div><p class="cc-explain"><strong>The first sign is always the knee jerk disappearing.</strong> Check it before every maintenance dose. Calcium gluconate reverses toxicity by outcompeting Mg²⁺ at neuromuscular junctions.</p><div class="danger"><div class="danger-tag">PHC survival rule</div><p>Draw calcium gluconate 10 ml of 10% in a labelled syringe before you start MgSO₄. Place it next to the patient. In toxicity you have 60 seconds.</p></div></div></div>
+
+  <div class="cc" id="ddc12"><div class="cc-trigger" onclick="togDD(12)"><div class="cc-num">12</div><div class="cc-text"><div class="cc-q">While you treat Priya — what is happening to her baby right now?</div><div class="cc-hint">Brain-sparing · IUGR · oligohydramnios · Doppler</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-red">Uteroplacental blood flow critically reduced</div><div class="f-arr">↓ fetus redistributes blood</div><div class="f-box f-amb">Brain-sparing: blood to brain, away from everything else</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-blu" style="font-size:13px">Brain survives</div><div class="f-box f-red" style="font-size:13px">Kidneys shut down<br>→ oligohydramnios</div><div class="f-box f-red" style="font-size:13px">Body starved<br>→ IUGR</div></div></div><p class="cc-explain"><strong>Oligohydramnios on ultrasound is the baby telling you it has been hypoxic for a while.</strong> Fetal kidneys shut down, urine stops, fluid disappears.</p><div class="pearl"><div class="pearl-tag">Doppler thresholds</div><p>S/D ≥ 3 → deliver 37 wks. Absent EDF → 33–34 wks. Reversed EDF → 31–32 wks.</p></div></div></div>
+
+  <div class="cc" id="ddc13"><div class="cc-trigger" onclick="togDD(13)"><div class="cc-num">13</div><div class="cc-text"><div class="cc-q">Why is delivering the baby the only thing that actually cures Priya?</div><div class="cc-hint">Placenta as source · BP normalisation after delivery</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-red">Placenta keeps secreting sFLT-1, endoglin</div><div class="f-arr">↓ drugs only manage effects</div><div class="f-row"><div class="f-box f-amb" style="font-size:13px">MgSO₄ → brain quiets</div><div class="f-box f-amb" style="font-size:13px">Labetalol → BP lowers</div></div><div class="f-arr">↓ source still running</div><div class="f-box f-grn">Delivery → placenta out → signals stop</div><div class="f-arr">↓</div><div class="f-box f-grn">BP normalises within 12 weeks</div></div><p class="cc-explain"><strong>Delivery is not a last resort. It is the treatment.</strong> The drugs buy time for stabilisation. The placenta drives PIH independently of the fetus.</p></div></div>
+
+  <div class="cc" id="ddc14"><div class="cc-trigger" onclick="togDD(14)"><div class="cc-num">14</div><div class="cc-text"><div class="cc-q">Full management — what do you actually do for Priya, in order, with doses?</div><div class="cc-hint">Stepwise · MgSO₄ · anti-HTN · delivery timing</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Patient seizing · BP 178/116 · 34 weeks</div><div class="f-arr">↓</div><div class="f-box f-red">Step 1: Airway · left lateral · O₂ · IV ×2</div><div class="f-arr">↓</div><div class="f-box f-amb">Step 2: MgSO₄ — IV 4g (20%) + IM 10g (50%)</div><div class="f-arr">↓</div><div class="f-box f-blu">Step 3: Labetalol 20→40→80→80 mg IV</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-red" style="font-size:12px">Emergency present<br>→ Deliver after 1st dose</div><div class="f-box f-grn" style="font-size:12px">No emergency · &lt;34 wks<br>→ Steroids · continue</div><div class="f-box f-grn" style="font-size:12px">No emergency · ≥34 wks<br>→ Induce labour</div></div></div><p class="cc-explain"><strong>Three tracks run simultaneously in the first 20 minutes: airway, MgSO₄, and anti-HTN.</strong> Delivery planning begins only after the patient is stabilised.</p><div class="pearl"><div class="pearl-tag">Delivery timing</div><p>Mild PE → 37 wks. Severe PE → 34 wks. Eclampsia / HELLP / Abruption / DIC → Immediate. Chronic HTN → 37–38 wks.</p></div></div></div>
+
+  <div class="cc" id="ddc15"><div class="cc-trigger" onclick="togDD(15)"><div class="cc-num">15</div><div class="cc-text"><div class="cc-q">5 mistakes that get patients killed — and why each one happens</div><div class="cc-hint">PHC traps · common errors · how to avoid</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px"><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 1</div><p><strong style="color:var(--red)">IV loading dose given too fast.</strong> 4g over 15–20 min minimum. No pump: 1 ml/min by hand. Count the seconds.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 2</div><p><strong style="color:var(--red)">Stopping MgSO₄ when urine drops.</strong> Oliguria is expected in PE — kidneys are vasoconstricted. You stop for lost knee jerk, not oliguria.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 3</div><p><strong style="color:var(--red)">Sublingual nifedipine.</strong> Always oral. Never sublingual. Ever.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 4</div><p><strong style="color:var(--red)">Operating before MgSO₄ is onboard.</strong> Loading dose first. Anti-HTN second. Then delivery.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 5</div><p><strong style="color:var(--red)">Sending postpartum woman home with headache + high BP.</strong> Eclampsia happens up to 48h post-delivery.</p></div><div class="pearl"><div class="pearl-tag">The one rule</div><p>Treat the postpartum period as carefully as the antepartum period. The endothelial damage takes days to resolve.</p></div></div></div>
+  `;
+}
+</script>
+</body>
+</html>
