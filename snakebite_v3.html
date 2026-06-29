@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake Bite · Drzix</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F4F6F9;--surface:#FFFFFF;--surface2:#EEF1F7;--border:#DDE2EC;
+  --text:#0D1117;--text2:#4A5568;--text3:#8896AB;
+  --red:#E53E3E;--red-bg:#FFF5F5;--red-bd:#FEB2B2;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-bd:#FCD34D;
+  --green:#059669;--green-bg:#ECFDF5;--green-bd:#6EE7B7;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-bd:#93C5FD;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;--purple-bd:#C4B5FD;
+  --accent:#22C55E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.layer{display:none}.layer.active{display:block}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;position:sticky;top:0;z-index:50;}
+.topbar-inner{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.tb-topic{font-size:17px;font-weight:700;color:var(--text)}
+.tb-sep{color:var(--text3)}
+.tb-badge{margin-left:auto;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.07em;padding:3px 12px;}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.page-content{padding-bottom:110px}
+.steps{max-width:600px;margin:0 auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.step-card:hover{border-color:#BFC8D8}
+.step-card.open{border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.step-trigger{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
+.step-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;transition:all .2s}
+.num-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.num-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.num-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.step-card.open .step-num{background:var(--purple);color:#fff;border-color:var(--purple)}
+.step-meta{flex:1}
+.step-timing{font-size:11px;font-weight:600;letter-spacing:.06em;margin-bottom:2px;text-transform:uppercase}
+.timing-red{color:var(--red)}.timing-amber{color:var(--amber)}.timing-green{color:var(--green)}
+.step-title{font-size:16px;font-weight:600;color:var(--text);line-height:1.3}
+.step-arrow{font-size:18px;color:var(--text3);transition:transform .25s;flex-shrink:0}
+.step-card.open .step-arrow{transform:rotate(180deg)}
+.step-body{display:none;padding:0 18px 20px;border-top:1px solid var(--border)}
+.step-card.open .step-body{display:block}
+.why-text{font-size:13px;font-style:italic;color:var(--text2);margin:14px 0 12px;line-height:1.6;padding-left:12px;border-left:3px solid var(--purple-bd)}
+.actions{display:flex;flex-direction:column;gap:0}
+.action-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.action-row:last-child{border-bottom:none}
+.action-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.dot-red{background:var(--red)}.dot-amber{background:var(--amber)}.dot-green{background:var(--green)}.dot-blue{background:var(--blue)}
+.action-main{font-size:15px;font-weight:500;color:var(--text);line-height:1.45}
+.action-sub{font-size:12px;color:var(--text3);margin-top:2px;line-height:1.4}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin:14px 0 8px}
+.prep-box{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.prep-route{font-size:12px;font-weight:700;color:var(--amber);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em}
+.prep-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.prep-row:last-child{margin-bottom:0}
+.prep-desc{font-size:13px;color:var(--text2)}
+.prep-note{font-size:11px;color:var(--text3);margin-top:4px}
+.monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.monitor-item{background:var(--surface2);border-radius:10px;padding:10px 12px}
+.monitor-item.full{grid-column:1/-1}
+.monitor-label{font-size:11px;color:var(--text3);margin-bottom:3px}
+.monitor-val{font-size:14px;font-weight:600;color:var(--text)}
+.drug-item{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.drug-item:last-child{margin-bottom:0}
+.drug-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.drug-dose{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:3px}
+.drug-ci{font-size:12px;color:var(--red)}
+.checklist{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check-row:last-child{border-bottom:none}
+.chk-box{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.chk-box.checked{background:var(--green-bg);border-color:var(--green-bd)}
+.chk-label{font-size:14px;font-weight:500;color:var(--text)}
+.chk-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.chk-progress{font-size:12px;color:var(--text3);text-align:right;margin-top:8px}
+.note-box{background:var(--surface2);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:13px;color:var(--text2);font-style:italic;line-height:1.55}
+.fallback-box{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:12px 14px;margin-top:10px}
+.fallback-tag{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.08em;margin-bottom:8px}
+.fallback-row{font-size:14px;color:var(--amber);padding:4px 0;border-bottom:1px solid var(--amber-bd);line-height:1.5}
+.fallback-row:last-child{border-bottom:none}
+.fallback-arr{color:var(--amber);opacity:.5;margin:0 4px}
+.antidote-box{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:12px 14px;margin-top:8px}
+.antidote-tag{font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;letter-spacing:.06em}
+.antidote-text{font-size:14px;font-weight:500;color:var(--green)}
+.emerg-sticky{position:fixed;bottom:0;left:0;right:0;padding:0 20px 28px;background:linear-gradient(to bottom,transparent,var(--bg) 40%);z-index:49;pointer-events:none}
+.emerg-sticky-inner{max-width:600px;margin:0 auto;pointer-events:all}
+.emerg-sticky-btn{width:100%;background:var(--red-bg);border:1.5px solid var(--red-bd);border-radius:14px;padding:13px 18px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--red);transition:opacity .15s;display:flex;align-items:center;justify-content:space-between}
+.emerg-sticky-btn:hover{opacity:.88}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text2);background:none;border:none;cursor:pointer;font-family:'Outfit',sans-serif;padding:0 0 14px}
+.emerg-header-card{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.emerg-tag{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.08em;margin-bottom:4px}
+.emerg-desc{font-size:14px;color:var(--red);line-height:1.5}
+.version-tag{text-align:center;font-size:11px;color:var(--text3);padding:16px 20px 8px}
+/* SEE DECK */
+.dots-wrap{max-width:560px;margin:0 auto;padding:20px 20px 0;display:flex;align-items:center;gap:12px}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;flex-shrink:0}
+.sdot.seen{background:var(--accent)}.sdot.active{background:var(--purple);width:24px;border-radius:4px}
+.dots-label{font-size:12px;color:var(--text3);margin-left:4px}
+.card-area{max-width:560px;margin:0 auto;padding:20px 20px 0}
+.q-number{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:10px}
+.q-text{font-size:24px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:20px}
+.tap-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:24px 20px;transition:border-color .2s,box-shadow .2s;overflow:hidden}
+.tap-card:hover{border-color:var(--purple-bd)}
+.tap-card.revealed{cursor:default;border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.tap-hint{display:flex;flex-direction:column;align-items:center;gap:12px;transition:opacity .2s}
+.tap-icon{width:52px;height:52px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px}
+.tap-label{font-size:14px;font-weight:500;color:var(--text3)}
+.see-answer{display:none;flex-direction:column;align-items:center;gap:14px;width:100%;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.see-answer.show{display:flex;opacity:1;transform:translateY(0)}
+.flow{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+.f-box{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;text-align:center;min-width:180px;max-width:100%;line-height:1.45;white-space:pre-line}
+.f-row{display:flex;gap:8px;justify-content:center;width:100%;flex-wrap:wrap}
+.f-arr{font-size:16px;color:var(--text3);line-height:1}
+.f-gray{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.f-red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}
+.f-amb{background:var(--amber-bg);border:1px solid var(--amber-bd);color:var(--amber)}
+.f-grn{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
+.f-blu{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue)}
+.f-pur{background:var(--purple-bg);border:1px solid var(--purple-bd);color:var(--purple)}
+.caption{font-size:14px;font-weight:500;color:var(--text2);text-align:center;line-height:1.65;padding:0 8px}
+.see-nav{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(to bottom,transparent,var(--bg) 35%);padding:20px 20px 28px;z-index:49}
+.see-nav-inner{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.see-btn{flex:1;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.see-btn:hover{opacity:.88}.see-btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.btn-dark{background:var(--text);color:#fff}.btn-green{background:var(--accent);color:#fff}
+.end-wrap{max-width:560px;margin:0 auto;padding:40px 20px 0;text-align:center}
+.end-tick{width:64px;height:64px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green-bd);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.end-title{font-size:26px;font-weight:800;color:var(--text);margin-bottom:10px}
+.end-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:340px;margin:0 auto 28px}
+.end-btns-v{display:flex;flex-direction:column;gap:10px}
+.end-btn-v{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.end-btn-v:hover{opacity:.88}
+/* DIG DEEPER */
+.hero{max-width:680px;margin:0 auto;padding:32px 20px 20px}
+.hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--purple);margin-bottom:10px;text-transform:uppercase}
+.hero-title{font-size:34px;font-weight:800;color:var(--text);line-height:1.15;margin-bottom:14px}
+.hero-def{font-size:17px;font-weight:500;color:var(--text2);line-height:1.65;border-left:4px solid var(--accent);padding-left:16px;margin-bottom:20px}
+.hero-story{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;font-size:15px;color:var(--text2);line-height:1.75}
+.hero-story strong{color:var(--text);font-weight:600}
+.story-tag{display:inline-block;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 8px;margin-bottom:10px}
+.dd-section-label{max-width:680px;margin:28px auto 12px;padding:0 20px;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase}
+.cards{max-width:680px;margin:0 auto;padding:0 20px 120px;display:flex;flex-direction:column;gap:10px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.cc:hover{border-color:#BFC8D8}.cc.open{border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.cc-trigger{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
+.cc-num{width:34px;height:34px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text2);flex-shrink:0;transition:background .2s,color .2s}
+.cc.open .cc-num{background:var(--purple);color:#fff;border-color:var(--purple)}
+.cc-text{flex:1}.cc-q{font-size:16px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:2px}
+.cc-hint{font-size:13px;color:var(--text3)}
+.cc-arrow{font-size:18px;color:var(--text3);transition:transform .25s;flex-shrink:0}
+.cc.open .cc-arrow{transform:rotate(180deg)}
+.cc-body{display:none;padding:0 20px 22px;border-top:1px solid var(--border)}
+.cc.open .cc-body{display:block}
+.dd-flow{display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 0 16px;width:100%}
+.dd-flow .f-box{font-size:14px}
+.cc-explain{font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px}
+.cc-explain strong{color:var(--text);font-weight:600}
+.pearl{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:14px 16px;margin-top:4px}
+.pearl-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:5px;text-transform:uppercase}
+.pearl p{font-size:14px;color:var(--amber);line-height:1.6}
+.danger{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:12px;padding:14px 16px;margin-top:4px}
+.danger-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--red);margin-bottom:5px;text-transform:uppercase}
+.danger p{font-size:14px;color:var(--red);line-height:1.6}
+.end-nav{position:sticky;bottom:0;background:linear-gradient(to bottom,transparent,var(--bg) 35%);padding:20px 20px 28px;z-index:49}
+.end-nav-inner{max-width:680px;margin:0 auto;display:flex;gap:10px}
+.end-btn-n{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s;text-align:center}
+.end-btn-n:hover{opacity:.88}
+.btn-outline-n{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.btn-solid-n{background:var(--text);color:#fff}
+/* species images */
+.species-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.species-card{background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.species-img{width:100%;height:130px;object-fit:cover;background:var(--border)}
+.species-label{padding:6px 10px;font-size:12px;font-weight:700;color:var(--text)}
+.species-sub{padding:0 10px 8px;font-size:11px;color:var(--text3);line-height:1.4}
+.clin-img{width:100%;border-radius:12px;object-fit:cover;display:block;background:var(--border)}
+.clin-img-wrap{border-radius:12px;overflow:hidden;margin:12px 0}
+.clin-caption{font-size:12px;color:var(--text3);text-align:center;margin-top:6px;font-style:italic;line-height:1.4}
+.clin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.clin-grid-item{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.clin-grid-item img{width:100%;height:140px;object-fit:cover;display:block}
+.clin-grid-label{padding:5px 8px;font-size:11px;font-weight:600;color:var(--text2);background:var(--surface2)}
+.img-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:4px;margin-bottom:8px}
+.badge-clinical{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.species-label{padding:6px 10px;font-size:12px;font-weight:700;color:var(--text)}
+.species-sub{padding:0 10px 8px;font-size:11px;color:var(--text3);line-height:1.4}
+/* comparison table */
+.comp-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+.comp-table th{background:var(--surface2);padding:8px 10px;text-align:left;font-weight:700;font-size:12px;border-bottom:2px solid var(--border)}
+.comp-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.comp-table tr:last-child td{border-bottom:none}
+@media(min-width:600px){
+  .topbar-inner,.steps,.dots-wrap,.card-area,.see-nav-inner,.hero,.cards,.dd-section-label,.end-nav-inner,.emerg-sticky-inner{max-width:680px}
+  .q-text{font-size:26px}.hero-title{font-size:38px}.step-title{font-size:17px}.cc-q{font-size:17px}
+  .monitor-grid{grid-template-columns:1fr 1fr 1fr}.monitor-item.full{grid-column:auto}
+}
+@media(min-width:1024px){
+  .steps,.hero,.cards,.dd-section-label{max-width:780px}
+  .topbar-inner,.see-nav-inner,.emerg-sticky-inner,.end-nav-inner{max-width:780px}
+  .tap-card,.card-area,.dots-wrap{max-width:780px}
+  .step-trigger{padding:18px 24px}.step-body{padding:0 24px 24px}
+  .step-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.07)}
+}
+@media(min-width:1280px){
+  .layer{display:none}.layer.active{display:grid;grid-template-columns:1fr minmax(0,860px) 1fr}
+  .layer.active>*{grid-column:2}.layer.active>.topbar{grid-column:1/-1}
+  .layer.active>.emerg-sticky,.layer.active>.see-nav,.layer.active>.end-nav{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+
+<!-- LAYER 1 — PROTOCOL -->
+<div class="layer active" id="layer1">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span class="tb-topic">Snake Bite</span>
+      <div class="tb-badge badge-red">EMERGENCY PROTOCOL</div>
+    </div>
+  </div>
+  <div class="page-content">
+
+    <!-- ASV REACTION SCREEN -->
+    <div id="emerg-screen" style="display:none">
+      <div class="steps">
+        <button class="back-btn" onclick="hideEmerg()">← Back to protocol</button>
+        <div class="emerg-header-card">
+          <div class="emerg-tag">ASV REACTION</div>
+          <div class="emerg-desc">Patient developing rash, urticaria, fever, hypotension, or bronchospasm during or after ASV infusion.</div>
+        </div>
+        <div class="step-card open">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">1</div>
+            <div class="step-meta"><div class="step-timing timing-red">Stop now</div><div class="step-title">Stop ASV infusion immediately</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Stop infusion — do not remove IV line</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Start fresh NS infusion via new IV set</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">O₂ 6–8 L/min via mask</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">2</div>
+            <div class="step-meta"><div class="step-timing timing-red">Give now</div><div class="step-title">Adrenaline 0.5 mg IM — first drug</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="prep-box">
+              <div class="prep-desc">Adrenaline 1:1000 solution → 0.5 ml IM into outer thigh or deltoid<br>Children: 0.01 mg/kg IM<br>Repeat every 5 min if no improvement</div>
+              <div class="prep-note">This is the most important drug. Give before antihistamine or steroid.</div>
+            </div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-amber">3</div>
+            <div class="step-meta"><div class="step-timing timing-amber">Then give</div><div class="step-title">Chlorpheniramine + Hydrocortisone IV</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Chlorpheniramine maleate 10 mg IV (children 0.2 mg/kg)</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Hydrocortisone 100 mg IV — acts slowly, supportive role</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-green">4</div>
+            <div class="step-meta"><div class="step-timing timing-green">After 15–30 min</div><div class="step-title">Restart ASV slowly once stable</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="note-box">Once reaction settles, restart ASV at slower rate under close observation. Patient still needs ASV — the venom remains active.</div>
+            <div class="fallback-box">
+              <div class="fallback-tag">NO ADRENALINE?</div>
+              <div class="fallback-row">Salbutamol nebulisation for bronchospasm</div>
+              <div class="fallback-row">IV fluids for hypotension — NS 500 ml bolus</div>
+              <div class="fallback-row">Refer immediately if not stabilising</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN PROTOCOL -->
+    <div id="main-protocol">
+      <div class="steps">
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">1</div>
+            <div class="step-meta"><div class="step-timing timing-red">At scene</div><div class="step-title">First aid — RIGht approach only</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">Most first aid done at scene makes things worse. The only safe intervention is immobilisation and transport.</div>
+            <div class="section-title">Do these 3 things</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">R — Reassure the patient. Fear raises heart rate and spreads venom faster.</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">I — Immobilise the bitten limb. Splint + crepe bandage. Limb below heart level.</div><div class="action-sub">Pressure immobilisation (Sutherland wrap): firm bandage from bite upward — finger should slip under it</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">G — Get to hospital. Carry the patient — do not let them walk.</div></div></div>
+            </div>
+            <div class="fallback-box">
+              <div class="fallback-tag">NEVER DO THESE — THEY KILL</div>
+              <div class="fallback-row">Tourniquet → gangrene, massive venom surge on release</div>
+              <div class="fallback-row">Cutting and suction → infection, no venom removed</div>
+              <div class="fallback-row">Electric shock → burns, no evidence</div>
+              <div class="fallback-row">Traditional remedies / herbs → delay, no benefit</div>
+              <div class="fallback-row">Trying to kill the snake → most bites happen during this attempt</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">2</div>
+            <div class="step-meta"><div class="step-timing timing-red">On arrival</div><div class="step-title">Assess — venomous bite or dry bite?</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">10–80% of bites from venomous snakes are dry bites with no venom injected. Confirming envenomation before ASV prevents unnecessary reactions.</div>
+            <div class="section-title">Local signs — check bite site</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Fang marks: 2 puncture wounds 0.5–2 cm apart</div><div class="action-sub">Krait bite: marks may be invisible or very faint</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Local swelling, bleeding, blistering, necrosis → viper bite</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Regional lymphadenopathy → indication for ASV</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">No local signs does NOT mean safe — krait bites are painless and leave no swelling</div></div></div>
+            </div>
+            <div class="section-title">Systemic signs — check these</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Ptosis (drooping eyelid) — earliest neurotoxic sign</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Diplopia, difficulty swallowing, speaking, or breathing</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Spontaneous bleeding from gums, IV site, or bite — viper DIC</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Generalised weakness, paralysis</div></div></div>
+            </div>
+            <div class="note-box">All snake bite patients: IV access, O₂ ready, keep nil by mouth, observe minimum 24 hours even if currently asymptomatic.</div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-amber">3</div>
+            <div class="step-meta"><div class="step-timing timing-amber">Bedside test</div><div class="step-title">20-Minute Whole Blood Clotting Test (20WBCT)</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">The best coagulation test you can do at a PHC with no lab. Tells you if viper venom is consuming the patient's clotting factors right now.</div>
+            <div class="section-title">How to do it</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Take 2–3 ml fresh venous blood in a clean, dry glass vial or test tube</div><div class="action-sub">Must be glass — plastic prevents clot formation and gives false positives</div></div></div>
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Leave completely undisturbed for exactly 20 minutes at room temperature</div></div></div>
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Gently tilt the vial at 20 minutes</div></div></div>
+            </div>
+            <div class="monitor-grid">
+              <div class="monitor-item"><div class="monitor-label">Blood has clotted</div><div class="monitor-val">Normal — elapid bite or dry bite</div></div>
+              <div class="monitor-item"><div class="monitor-label">Blood still liquid</div><div class="monitor-val">Viper envenomation — start ASV now</div></div>
+            </div>
+            <div class="note-box">Repeat 20WBCT every 30 min for 3 hours, then hourly. After ASV: repeat at 6h and 12h to confirm coagulation restored.</div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">4</div>
+            <div class="step-meta"><div class="step-timing timing-red">If envenomation confirmed</div><div class="step-title">Anti-Snake Venom (ASV) — when and how</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">ASV is the only specific treatment. Give only when envenomation is confirmed. ASV neutralises circulating venom only — it cannot reverse damage already done.</div>
+            <div class="section-title">Start ASV if ANY of these present</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Ptosis, diplopia, or any neuromuscular sign</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Spontaneous bleeding from any site</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">20WBCT positive (blood still liquid at 20 min)</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Rapidly progressive local swelling</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Regional lymphadenopathy</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Hypotension or shock</div></div></div>
+            </div>
+            <div class="section-title">How to give ASV</div>
+            <div class="prep-box">
+              <div class="prep-route">Preparation</div>
+              <div class="prep-row"><div class="prep-desc">Reconstitute each lyophilised vial in 10 ml distilled water (liquid form: use directly)</div></div>
+              <div class="prep-row"><div class="prep-desc">Add 5–10 vials to 100–200 ml normal saline</div></div>
+              <div class="prep-note">No test dose needed — test dose does not predict anaphylaxis and wastes time</div>
+            </div>
+            <div class="prep-box">
+              <div class="prep-route">Initial dose</div>
+              <div class="prep-row"><div class="prep-desc">Mild envenomation: 8–10 vials IV over 1 hour (1–2 ml/min)</div></div>
+              <div class="prep-row"><div class="prep-desc">Severe envenomation: 10–15 vials IV — same rate</div></div>
+              <div class="prep-note">Children: same dose as adults — venom dose is not weight-dependent<br>No pump: 15 drops/ml set → 1–2 ml/min = 15–30 drops/min</div>
+            </div>
+            <div class="prep-box">
+              <div class="prep-route">Repeat doses</div>
+              <div class="prep-row"><div class="prep-desc">If 20WBCT still positive at 6 hours → give same dose again</div></div>
+              <div class="prep-row"><div class="prep-desc">If neurotoxic signs worsening → repeat dose at 1–2 hours</div></div>
+              <div class="prep-note">Maximum documented: up to 30 vials in severe cases</div>
+            </div>
+            <div class="danger" style="margin-top:8px">
+              <div class="danger-tag">ASV does NOT work for</div>
+              <p>Hump-Nosed Viper (Hypnale hypnale) — polyvalent ASV is ineffective. Supportive care only. Dialysis if renal failure develops.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-amber">5</div>
+            <div class="step-meta"><div class="step-timing timing-amber">Neurotoxic bites</div><div class="step-title">Neostigmine + Atropine — cobra bites only</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">Cobra venom blocks post-synaptic nicotinic receptors — neostigmine reverses this. Krait venom blocks pre-synaptic receptors — neostigmine has no effect.</div>
+            <div class="section-title">Atropine-Neostigmine (AN) regimen</div>
+            <div class="drug-item">
+              <div class="drug-name">Step 1: Atropine first — always</div>
+              <div class="drug-dose">Atropine 0.6 mg IV slow push (children 0.02 mg/kg)<br>Wait 2–3 minutes before giving neostigmine</div>
+              <div class="drug-ci">Atropine prevents muscarinic side effects of neostigmine (excessive secretions, bradycardia)</div>
+            </div>
+            <div class="drug-item">
+              <div class="drug-name">Step 2: Neostigmine IV</div>
+              <div class="drug-dose">Neostigmine 2.5 mg IV slow (children 0.04 mg/kg)<br>Repeat every 30 minutes — up to 3 doses<br>Positive response: ≥50% improvement in ptosis within 1 hour</div>
+              <div class="drug-ci">No response after 3 doses = krait bite or venom already at pre-synaptic site — stop neostigmine</div>
+            </div>
+            <div class="note-box">Give one AN dose before transfer to higher centre. Cobra neurotoxicity can progress rapidly during transport.</div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">6</div>
+            <div class="step-meta"><div class="step-timing timing-red">Respiratory watch</div><div class="step-title">Single Breath Count — do every 15–20 min</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">Respiratory failure is the most common cause of death in neurotoxic bites. The Single Breath Count detects declining respiratory muscle power before the patient crashes.</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Ask patient to take a deep breath and count aloud from 1 as far as possible</div></div></div>
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Normal: count reaches 25–30 in one breath</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Count &lt;15 → prepare for intubation now</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Count &lt;10 or tidal volume &lt;200 ml → intubate immediately</div></div></div>
+            </div>
+            <div class="note-box">At PHC without ventilator: bag-mask ventilation can sustain a krait bite patient for hours. Transfer immediately. Neurotoxic paralysis from krait bites is fully reversible if the patient survives the respiratory failure.</div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-red">7</div>
+            <div class="step-meta"><div class="step-timing timing-red">Haematotoxic bites</div><div class="step-title">Bleeding · DIC · AKI — viper envenomation</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">Russell's viper and Saw-scaled viper venom consumes all clotting factors. The patient bleeds from everywhere — gums, IV site, bite wound, urine. ASV is the only cure. Everything else is buying time.</div>
+            <div class="section-title">Bleeding management</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Give adequate ASV first — do not transfuse before ASV</div><div class="action-sub">Transfusing clotting factors while venom is still active = replacing factors directly into venom. Waste.</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Active severe bleeding after adequate ASV → Fresh Frozen Plasma (FFP) 4–6 units</div><div class="action-sub">No FFP available → Fresh whole blood transfusion</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Strict bed rest — even minor trauma will cause haematoma in DIC</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">No NSAIDs, no aspirin, no IM injections until coagulopathy corrected</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Tetanus toxoid only after coagulopathy is corrected</div><div class="action-sub">Injecting during active DIC causes massive haematoma at injection site</div></div></div>
+            </div>
+            <div class="section-title">Acute Kidney Injury (AKI) — Russell's viper only</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Target urine output 1 ml/kg/hour — monitor strictly</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">If oliguria: IV fluids 200 ml NS bolus → reassess → repeat</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Dialysis indications: K⁺ &gt;6.5 · Urea &gt;300 · Anuria · Severe acidosis · Fluid overload</div><div class="action-sub">Any single criterion is sufficient — do not wait for all five</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Forced Alkaline Diuresis (FAD) if dialysis not available</div><div class="action-sub">500 ml NS + 50 ml 8.4% NaHCO₃ + 100 ml 20% Mannitol over 1 hour · repeat cycles · monitor urine output hourly</div></div></div>
+            </div>
+            <div class="section-title">Pregnancy — snakebite in pregnant women</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">ASV: same dose as non-pregnant adults — do not reduce</div><div class="action-sub">The venom dose is the same. Undertreating risks both mother and foetus.</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">ASV is safe in pregnancy — benefit far outweighs any theoretical risk</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Refer to gynaecologist for foetal assessment after stabilisation</div><div class="action-sub">Assess foetal heart rate, signs of placental abruption</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">DIC especially dangerous in pregnancy — risk of PPH, placental abruption</div></div></div>
+            </div>
+            <div class="section-title">Compartment syndrome</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Signs: tense swelling, pain on passive stretch, absent distal pulse, paraesthesia</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Do NOT incise at PHC/CHC level — fasciotomy requires surgical facility + corrected coagulopathy</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Give ASV, elevate limb, refer urgently for compartment pressure measurement</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-amber">8</div>
+            <div class="step-meta"><div class="step-timing timing-amber">Investigations</div><div class="step-title">Labs — what to send, why, and when</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="why-text">Labs confirm what clinical signs suggest — they do not replace them. Never delay ASV for lab results if clinical envenomation is clear.</div>
+            <div class="section-title">All levels — do immediately</div>
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">20WBCT — the most important bedside test</div><div class="action-sub">Glass vial only · 2 ml blood · 20 min undisturbed</div></div></div>
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">BP, Pulse, RR, SpO₂, Temperature every 15 min in active envenomation</div></div></div>
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Single Breath Count every 15–20 min in neurotoxic bites</div></div></div>
+              <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Urine — observe colour at every void (pink/red/brown = haemoglobinuria/myoglobinuria)</div></div></div>
+            </div>
+            <div class="section-title">District hospital — send on admission</div>
+            <div class="monitor-grid" style="grid-template-columns:1fr 1fr;gap:6px">
+              <div class="monitor-item"><div class="monitor-label">CBC + Platelet count</div><div class="monitor-val" style="font-size:13px">Thrombocytopenia → viper · Neutrophilia → systemic absorption</div></div>
+              <div class="monitor-item"><div class="monitor-label">PT / APTT</div><div class="monitor-val" style="font-size:13px">Prolonged → viper coagulopathy · Repeat 6-hourly until normal</div></div>
+              <div class="monitor-item"><div class="monitor-label">Serum Creatinine + BUN</div><div class="monitor-val" style="font-size:13px">Rising → AKI (Russell's viper). Baseline then daily.</div></div>
+              <div class="monitor-item"><div class="monitor-label">Serum Electrolytes</div><div class="monitor-val" style="font-size:13px">K⁺ &gt;6.5 → emergency dialysis trigger</div></div>
+              <div class="monitor-item"><div class="monitor-label">Blood Group + Rh</div><div class="monitor-val" style="font-size:13px">Before FFP or blood transfusion</div></div>
+              <div class="monitor-item"><div class="monitor-label">Urine dipstick + microscopy</div><div class="monitor-val" style="font-size:13px">Haematuria · haemoglobinuria · casts → AKI</div></div>
+            </div>
+            <div class="section-title">Tertiary / ICU — add these</div>
+            <div class="monitor-grid" style="grid-template-columns:1fr 1fr;gap:6px">
+              <div class="monitor-item"><div class="monitor-label">Fibrinogen + D-Dimer + FDP</div><div class="monitor-val" style="font-size:13px">Low fibrinogen + high D-Dimer = VICC confirmed</div></div>
+              <div class="monitor-item"><div class="monitor-label">LFT — SGOT / SGPT</div><div class="monitor-val" style="font-size:13px">Hepatic injury. Note: ALP unreliable — liver disease elevates it too.</div></div>
+              <div class="monitor-item"><div class="monitor-label">CPK + Urine Myoglobin</div><div class="monitor-val" style="font-size:13px">Myotoxicity (sea snake, Russell's). CPK &gt;1000 → rhabdomyolysis.</div></div>
+              <div class="monitor-item"><div class="monitor-label">ABG (arterial)</div><div class="monitor-val" style="font-size:13px">Neurotoxic bites — CO₂ retention = impending failure. Caution: do NOT do arterial puncture in active coagulopathy</div></div>
+              <div class="monitor-item"><div class="monitor-label">ECG</div><div class="monitor-val" style="font-size:13px">Sinus tachycardia, ST changes, AV block all reported in viper bites</div></div>
+              <div class="monitor-item"><div class="monitor-label">Peripheral smear</div><div class="monitor-val" style="font-size:13px">Schistocytes (helmet cells) → microangiopathic haemolysis in VICC</div></div>
+            </div>
+            <div class="note-box">Arterial puncture is contraindicated in patients with haemostatic abnormalities — risk of uncontrollable bleeding at puncture site. Use venous blood gas or SpO₂ + clinical assessment instead.</div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-green">9</div>
+            <div class="step-meta"><div class="step-timing timing-green">All bites</div><div class="step-title">Supportive care + adjuncts</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="actions">
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Tetanus toxoid IM — only after ruling out or correcting coagulopathy</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Antibiotics if local cellulitis or necrosis — Amoxyclav 625 mg BD oral or 1.2 g IV 8-hourly</div></div></div>
+              <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Pain: paracetamol or tramadol only</div><div class="action-sub">No NSAIDs, no aspirin — worsen bleeding in viper bites</div></div></div>
+              <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">No corticosteroids, no heparin, no antihistamines as treatment — ineffective for envenomation</div></div></div>
+              <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Observe minimum 24 hours — even asymptomatic patients, even if snake appears non-venomous</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-trigger" onclick="togStep(this)">
+            <div class="step-num num-green">10</div>
+            <div class="step-meta"><div class="step-timing timing-green">Before transfer</div><div class="step-title">Referral checklist + discharge criteria</div></div>
+            <div class="step-arrow">&#8964;</div>
+          </div>
+          <div class="step-body">
+            <div class="section-title">Complete before shifting patient</div>
+            <div class="checklist" id="chklist">
+              <div class="check-row" onclick="chk(0)"><div class="chk-box" id="ck0"></div><div><div class="chk-label">IV access secured, O₂ running</div></div></div>
+              <div class="check-row" onclick="chk(1)"><div class="chk-box" id="ck1"></div><div><div class="chk-label">20WBCT done and result documented</div></div></div>
+              <div class="check-row" onclick="chk(2)"><div class="chk-box" id="ck2"></div><div><div class="chk-label">ASV first dose given (if envenomation confirmed)</div><div class="chk-sub">Document: number of vials, time given, any reaction</div></div></div>
+              <div class="check-row" onclick="chk(3)"><div class="chk-box" id="ck3"></div><div><div class="chk-label">Single breath count checked and documented</div></div></div>
+              <div class="check-row" onclick="chk(4)"><div class="chk-box" id="ck4"></div><div><div class="chk-label">One AN dose given if cobra neurotoxicity present</div></div></div>
+              <div class="check-row" onclick="chk(5)"><div class="chk-box" id="ck5"></div><div><div class="chk-label">Tetanus toxoid given</div></div></div>
+              <div class="check-row" onclick="chk(6)"><div class="chk-box" id="ck6"></div><div><div class="chk-label">Receiving facility called and briefed</div></div></div>
+            </div>
+            <div class="chk-progress" id="ck-prog">0 / 7 complete</div>
+          </div>
+        </div>
+
+      </div>
+      <div style="max-width:600px;margin:0 auto;padding:8px 20px 32px;display:flex;flex-direction:column;gap:10px">
+        <button onclick="switchLayer(2)" style="width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;background:var(--purple);color:#fff;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Understand the concept →</button>
+      </div>
+      <div class="version-tag">Drzix · Snake Bite · v1.0 · For clinical reference only</div>
+    </div>
+  </div>
+  <div class="emerg-sticky" id="emerg-sticky">
+    <div class="emerg-sticky-inner">
+      <button class="emerg-sticky-btn" onclick="showEmerg()">
+        <span>ASV reaction developing? Tap here</span><span>&#8599;</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LAYER 2 — SEE DECK -->
+<div class="layer" id="layer2">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button onclick="switchLayer(1)" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;padding:0;display:flex;align-items:center;gap:4px">← Protocol</button>
+      <span class="tb-sep">·</span><span class="tb-topic">SEE</span>
+      <div class="tb-badge badge-purple">4 CONCEPTS</div>
+    </div>
+  </div>
+  <div class="page-content" id="see-content"></div>
+  <div class="see-nav" id="see-nav">
+    <div class="see-nav-inner">
+      <button class="see-btn btn-ghost" onclick="seeRestart()">Start over</button>
+      <button class="see-btn btn-dark" id="see-next-btn" onclick="seeNext()" disabled>Tap card first</button>
+    </div>
+  </div>
+</div>
+
+<!-- LAYER 3 — DIG DEEPER -->
+<div class="layer" id="layer3">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button onclick="switchLayer(2)" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;padding:0;display:flex;align-items:center;gap:4px">← SEE</button>
+      <span class="tb-sep">·</span><span class="tb-topic">Dig Deeper</span>
+      <div class="tb-badge badge-purple">20 CONCEPTS</div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="hero">
+      <div class="hero-eyebrow">Medicine · Toxicology</div>
+      <div class="hero-title">Snake Bite</div>
+      <div class="hero-def">64,000 deaths annually in India. The bite that arrives quietly, kills overnight, and responds completely to a drug that costs ₹200 per vial — if you give it in time.</div>
+      <div class="hero-story">
+        <div class="story-tag">REAL PATIENT</div>
+        <strong>Bhikhabhai. 52 years old. Farmer. Found by his wife at 5 AM.</strong><br><br>
+        He had gone to irrigate his field at midnight. Came home, said something bit his foot, went to sleep. At 5 AM his wife couldn't wake him. No swelling. No bite mark visible. No pain. By the time she brought him to the PHC — he was apnoeic. Common krait. Bit him at midnight. Killed him silently while he slept.<br><br>
+        <strong>Every concept below explains what happened inside Bhikhabhai — and how the next patient can survive it.</strong>
+      </div>
+    </div>
+    <div class="dd-section-label">20 concepts — tap any question</div>
+    <div class="cards" id="dd-cards"></div>
+    <div class="end-nav">
+      <div class="end-nav-inner">
+        <button class="end-btn-n btn-outline-n" onclick="switchLayer(2)">← SEE deck</button>
+        <button class="end-btn-n btn-solid-n" onclick="switchLayer(1)">← Protocol</button>
+      </div>
+    </div>
+  </div>
+  <div class="version-tag">Drzix · Snake Bite · Dig Deeper · For clinical reference only</div>
+</div>
+
+<script>
+function switchLayer(n){
+  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('active'));
+  document.getElementById('layer'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2&&!seeInitialised)initSee();
+  if(n===3&&!ddInitialised)initDD();
+}
+function togStep(trigger){trigger.closest('.step-card').classList.toggle('open')}
+const checks=Array(7).fill(false);
+const SVG_CHK=`<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l4 4 6-8" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function chk(i){
+  checks[i]=!checks[i];
+  const b=document.getElementById('ck'+i);
+  b.classList.toggle('checked',checks[i]);
+  b.innerHTML=checks[i]?SVG_CHK:'';
+  document.getElementById('ck-prog').textContent=checks.filter(Boolean).length+' / 7 complete';
+}
+function showEmerg(){
+  document.getElementById('main-protocol').style.display='none';
+  document.getElementById('emerg-screen').style.display='block';
+  document.getElementById('emerg-sticky').style.display='none';
+  window.scrollTo(0,0);
+}
+function hideEmerg(){
+  document.getElementById('emerg-screen').style.display='none';
+  document.getElementById('main-protocol').style.display='block';
+  document.getElementById('emerg-sticky').style.display='block';
+}
+
+/* SEE DECK */
+let seeInitialised=false,seeCur=0,seeRevealed=false;
+const SEE_CARDS=[
+  {
+    q:"A farmer arrives at midnight — two puncture marks on his foot, no pain, no swelling. He looks completely fine. You're about to reassure him and send him home. Why would that be the biggest mistake of your career?",
+    caption:"The bite that kills quietly. Krait venom has no local signs. The absence of swelling means nothing — the neurotoxin is already binding pre-synaptic nerve terminals.",
+    flow:[
+      {box:"Common Krait bites — painless, marks often invisible",c:"f-gray"},
+      {arr:"↓ no local reaction at bite site"},
+      {box:"Neurotoxin travels via lymphatics to neuromuscular junction",c:"f-amb"},
+      {arr:"↓ 6–12 hours later — while patient sleeps"},
+      {box:"Pre-synaptic blockade → ACh release stops completely",c:"f-red"},
+      {arr:"↓"},
+      {row:[{box:"Ptosis\nFacial droop\nDysphagia",c:"f-red"},{box:"Respiratory\nmuscle\nparalysis",c:"f-red"}]},
+      {arr:"↓ patient found unconscious at 5 AM"},
+      {box:"Respiratory arrest — fully preventable with 24h observation + ASV",c:"f-red"}
+    ]
+  },
+  {
+    q:"You pour 2 ml of blood into a clean glass vial, set it aside, and wait 20 minutes without touching it. What are you actually testing — and what does the answer change?",
+    caption:"The cheapest coagulation test in the world. No lab needed. One glass vial tells you which venom is running in their blood — and whether to start ASV right now.",
+    flow:[
+      {box:"Russell's viper venom activates clotting cascade",c:"f-gray"},
+      {arr:"↓ consumes fibrinogen + clotting factors → DIC"},
+      {box:"20WBCT: 2 ml blood in clean glass vial → leave 20 min undisturbed",c:"f-blu"},
+      {arr:"↓ tilt at 20 minutes"},
+      {row:[{box:"CLOTTED ✓\nNormal clotting\nElapid bite or dry bite",c:"f-grn"},{box:"STILL LIQUID ✗\nCoagulation consumed\nViper envenomation → start ASV",c:"f-red"}]},
+      {arr:"↓ must use glass — plastic prevents clotting, gives false positive"},
+      {box:"Repeat every 30 min × 3 hours then hourly\nAfter ASV: check at 6h to confirm clotting restored",c:"f-amb"}
+    ]
+  },
+  {
+    q:"You give 10 vials of ASV. An hour later — ptosis unchanged, the patient still can't swallow. Did the ASV fail?",
+    caption:"ASV stops new damage. It cannot undo damage already done. Paralysis after ASV is not treatment failure — it is the venom that was already bound before the ASV arrived.",
+    flow:[
+      {box:"ASV neutralises only FREE CIRCULATING venom in bloodstream",c:"f-grn"},
+      {arr:"↓ but venom already bound to receptors"},
+      {box:"Venom bound to NMJ receptors → ASV cannot reach or reverse this",c:"f-red"},
+      {arr:"↓ two different mechanisms"},
+      {row:[{box:"COBRA\nPost-synaptic block\nNeostigmine CAN reverse\nif given early",c:"f-amb"},{box:"KRAIT\nPre-synaptic block\nNeostigmine CANNOT reverse\nVentilate and wait",c:"f-red"}]},
+      {arr:"↓ paralysis resolves as nerve terminals regenerate — days to weeks"},
+      {box:"ASV was not too late — it stopped more venom from binding\nThe bound venom must resolve on its own",c:"f-grn"}
+    ]
+  },
+  {
+    q:"Your viper bite patient has no visible bleeding — but 20WBCT is liquid at 20 minutes. Patient says they feel completely fine. Why are they in more danger than the patient screaming in pain?",
+    caption:"Silent coagulopathy kills. Viper venom consumes every clotting factor without any warning — until the patient bleeds into their brain.",
+    flow:[
+      {box:"Russell's viper venom activates prothrombin → generates thrombin",c:"f-gray"},
+      {arr:"↓ thrombin consumes ALL fibrinogen throughout bloodstream"},
+      {box:"VICC — Venom-Induced Consumption Coagulopathy",c:"f-red"},
+      {arr:"↓ no clotting factors remain"},
+      {row:[{box:"20WBCT stays liquid\nno fibrinogen to clot",c:"f-red"},{box:"Platelets consumed\nthrombocytopenia",c:"f-red"}]},
+      {arr:"↓ any minor bump causes catastrophic bleeding"},
+      {row:[{box:"Intracranial\nhaemorrhage",c:"f-red"},{box:"GI bleed\nRenal bleed",c:"f-amb"}]},
+      {arr:"↓ ASV stops the venom → liver makes new fibrinogen in 6 hours"},
+      {box:"Coagulopathy is fully reversible with ASV — give it before the bleeding starts",c:"f-grn"}
+    ]
+  }
+];
+function buildFlow(flow){
+  return flow.map(s=>{
+    if(s.arr)return`<div class="f-arr">${s.arr}</div>`;
+    if(s.row)return`<div class="f-row">${s.row.map(b=>`<div class="f-box ${b.c}">${b.box}</div>`).join('')}</div>`;
+    return`<div class="f-box ${s.c}">${s.box}</div>`;
+  }).join('');
+}
+function initSee(){seeInitialised=true;seeCur=0;renderSee();}
+function renderSee(){
+  seeRevealed=false;
+  const c=SEE_CARDS[seeCur];
+  const dots=SEE_CARDS.map((_,i)=>`<div class="sdot ${i<seeCur?'seen':i===seeCur?'active':''}"></div>`).join('');
+  document.getElementById('see-content').innerHTML=`
+    <div class="dots-wrap">${dots}<span class="dots-label">${seeCur+1} of ${SEE_CARDS.length}</span></div>
+    <div class="card-area">
+      <div class="q-number">Concept ${seeCur+1}</div>
+      <div class="q-text">${c.q}</div>
+      <div class="tap-card" id="stc" onclick="seeReveal()">
+        <div class="tap-hint" id="sth"><div class="tap-icon">👁</div><div class="tap-label">Tap to reveal</div></div>
+        <div class="see-answer" id="sans"><div class="flow">${buildFlow(c.flow)}</div><div class="caption">${c.caption}</div></div>
+      </div>
+    </div>`;
+  const nb=document.getElementById('see-next-btn');
+  nb.disabled=true;nb.textContent='Tap card first';nb.className='see-btn btn-dark';
+  document.getElementById('see-nav').style.display='block';
+}
+function seeReveal(){
+  if(seeRevealed)return;seeRevealed=true;
+  document.getElementById('stc').classList.add('revealed');
+  const th=document.getElementById('sth');
+  th.style.opacity='0';th.style.pointerEvents='none';
+  setTimeout(()=>{
+    th.style.display='none';
+    const ans=document.getElementById('sans');
+    ans.style.display='flex';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>ans.classList.add('show')));
+  },160);
+  const nb=document.getElementById('see-next-btn');
+  nb.disabled=false;
+  const isLast=seeCur===SEE_CARDS.length-1;
+  nb.textContent=isLast?'Dig Deeper →':'Next →';
+  nb.className=isLast?'see-btn btn-green':'see-btn btn-dark';
+}
+function seeNext(){if(!seeRevealed)return;if(seeCur<SEE_CARDS.length-1){seeCur++;renderSee();}else{showSeeEnd();}}
+function seeRestart(){seeCur=0;renderSee();}
+function showSeeEnd(){
+  document.getElementById('see-content').innerHTML=`
+    <div class="end-wrap">
+      <div class="end-tick">✓</div>
+      <div class="end-title">You've seen it.</div>
+      <div class="end-sub">3 core ideas. Now go deeper — species, venom, 20WBCT, ASV, and the krait that kills while people sleep.</div>
+      <div class="end-btns-v">
+        <button class="end-btn-v btn-green" onclick="switchLayer(3)">Dig Deeper →</button>
+        <button class="end-btn-v btn-ghost" style="background:var(--surface);border:1px solid var(--border);color:var(--text2)" onclick="seeRestart()">Start over</button>
+      </div>
+    </div>`;
+  document.getElementById('see-nav').style.display='none';
+}
+
+/* DIG DEEPER */
+let ddInitialised=false;
+function togDD(n){const el=document.getElementById('ddc'+n);if(el)el.classList.toggle('open');}
+function initDD(){ddInitialised=true;document.getElementById('dd-cards').innerHTML=getDDCards();}
+function getDDCards(){return`
+  <div class="cc" id="ddc1"><div class="cc-trigger" onclick="togDD(1)"><div class="cc-num">1</div><div class="cc-text"><div class="cc-q">Who gets bitten — and who actually dies?</div><div class="cc-hint">India's burden · farmers · kharif season · 64,000 deaths</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-red">India: highest snakebite mortality in the world</div><div class="f-arr">↓</div><div class="f-row"><div style="flex:1;min-width:130px"><div class="f-box f-amb" style="font-size:13px;margin-bottom:8px">Who gets bitten</div><div style="font-size:13px;color:var(--text2);line-height:2;padding:0 4px">Farmers (field work)<br>Plantation workers<br>Children (near houses)<br>Rural India 80%</div></div><div style="flex:1;min-width:130px"><div class="f-box f-red" style="font-size:13px;margin-bottom:8px">When</div><div style="font-size:13px;color:var(--text2);line-height:2;padding:0 4px">Kharif season<br>June–September<br>Night and dawn<br>Krait: midnight field work</div></div></div></div><p class="cc-explain">Bhikhabhai went to irrigate his field at midnight — exactly when common kraits are active. <strong>80% of bites occur June–September. Stock ASV in April–May before the season starts.</strong> Most deaths occur because the patient doesn't reach hospital in time, or because doctors are afraid to give ASV.</p><div class="pearl"><div class="pearl-tag">Krait pattern</div><p>Krait bites predominantly at night, often inside houses — sleeping on floor mats. Patient wakes up paralysed or is found unconscious. No memory of being bitten. This is "occult bite."</p></div></div></div>
+
+  <div class="cc" id="ddc2"><div class="cc-trigger" onclick="togDD(2)"><div class="cc-num">2</div><div class="cc-text"><div class="cc-q">How do you tell a venomous from non-venomous snake — without touching it?</div><div class="cc-hint">Fang marks · head shape · belly scales · nocturnal habit</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Venomous</div><div style="font-size:12px;color:var(--text2);text-align:left;line-height:1.8;padding:4px">2 hollow fangs → 2 fang marks<br>Belly scales: single, wider<br>Head: triangular (vipers)<br>Pupils: elliptical (vipers)<br>Habit: nocturnal<br>Tail: compressed (sea snakes)</div></div><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-grn" style="font-size:12px;width:100%">Non-venomous</div><div style="font-size:12px;color:var(--text2);text-align:left;line-height:1.8;padding:4px">Multiple small teeth → row of marks<br>Belly scales: double, smaller<br>Head: round/oval<br>Pupils: round<br>Habit: diurnal<br>Tail: round</div></div></div></div><p class="cc-explain"><strong>Bite mark pattern is the most reliable bedside clue.</strong> Two distinct puncture wounds 0.5–2 cm apart = venomous. Row of small marks = non-venomous. However, krait bites may leave barely visible marks — treat any nocturnal bite with neurological symptoms as krait until proven otherwise.</p><div class="danger"><div class="danger-tag">Unreliable identification</div><p>Snake colour, skin pattern, and the patient's description of the snake are all unreliable. Treat the clinical picture, not the snake story.</p></div></div></div>
+
+  <div class="cc" id="ddc3"><div class="cc-trigger" onclick="togDD(3)"><div class="cc-num">3</div><div class="cc-text"><div class="cc-q">The Indian Big 4 — who kills how, and what does Indian ASV cover?</div><div class="cc-hint">Cobra · Krait · Russell's viper · Saw-scaled viper · Hump-nosed viper</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body">
+  <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:12px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:var(--surface2);border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--text3)">Feature</div><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--red)">Cobra</div><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--red)">Krait</div><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--amber)">Russell's Viper</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-size:12px;font-weight:600;color:var(--text2)">Venom type</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">Neurotoxic (post-synaptic)</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">Neurotoxic (pre-synaptic)</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">Vasculotoxic + Neurotoxic*</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-size:12px;font-weight:600;color:var(--text2)">Local signs</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">Yes — swelling, necrosis</div><div style="padding:8px 10px;font-size:12px;color:var(--red)">None — painless</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">Severe — haemorrhage, necrosis</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-size:12px;font-weight:600;color:var(--text2)">Killer mechanism</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">Respiratory failure</div><div style="padding:8px 10px;font-size:12px;color:var(--red)">Respiratory failure at night</div><div style="padding:8px 10px;font-size:12px;color:var(--text2)">DIC + Renal failure</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr"><div style="padding:8px 10px;font-size:12px;font-weight:600;color:var(--text2)">Neostigmine</div><div style="padding:8px 10px;font-size:12px;color:var(--green)">✓ Works</div><div style="padding:8px 10px;font-size:12px;color:var(--red)">✗ Ineffective</div><div style="padding:8px 10px;font-size:12px;color:var(--amber)">Sometimes*</div></div>
+  </div>
+  <p class="cc-explain">*Russell's viper in South India (Nilgiri region) produces a presynaptic neurotoxin like krait — neostigmine may help in some. <strong>Indian polyvalent ASV covers all Big 4. It does NOT cover Hump-Nosed Viper (Hypnale hypnale) — treat symptomatically.</strong></p>
+  <div class="img-badge badge-clinical">IDENTIFY THE SNAKE</div>
+  <div class="species-grid">
+    <div class="species-card"><img class="species-img" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/cobra.jpg" alt="Indian Cobra" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="species-label">Indian Cobra (Naja naja)</div><div class="species-sub">Hood spread · spectacle mark on back of hood · neurotoxic</div></div>
+    <div class="species-card"><img class="species-img" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/krait.jpg" alt="Common Krait" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="species-label">Common Krait (Bungarus)</div><div class="species-sub">Black + white bands · bites at night · NO local signs</div></div>
+    <div class="species-card"><img class="species-img" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/russell.jpg" alt="Russell's Viper" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="species-label">Russell's Viper (Daboia)</div><div class="species-sub">Chain pattern · triangular head · DIC + AKI</div></div>
+    <div class="species-card"><img class="species-img" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/sawscale.jpg" alt="Saw-scaled Viper" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="species-label">Saw-scaled Viper (Echis)</div><div class="species-sub">Small · aggressive · DIC · no AKI</div></div>
+    <div class="species-card" style="grid-column:1/-1"><img class="species-img" style="height:140px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/humpnose.jpg" alt="Hump-nosed Viper" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="species-label">Hump-nosed Viper (Hypnale) ⚠ ASV does NOT work</div><div class="species-sub">Small · upturned nose · coagulopathy + AKI · supportive care only</div></div>
+  </div>
+  <div class="pearl"><div class="pearl-tag">Saw-scaled viper</div><p>Most aggressive of the four. Characteristic rasping sound from scales. Causes DIC. Does NOT usually cause renal failure (unlike Russell's viper). ASV covers it.</p></div></div></div>
+
+  <div class="cc" id="ddc4"><div class="cc-trigger" onclick="togDD(4)"><div class="cc-num">4</div><div class="cc-text"><div class="cc-q">How does venom actually get into the body — and what stops it?</div><div class="cc-hint">Venom apparatus · lymphatic spread · why immobilisation works</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Modified salivary gland → hollow fang → venom canal → tissue</div><div class="f-arr">↓ 90% of venom is protein enzymes</div><div class="f-row"><div class="f-box f-amb" style="font-size:13px">Hyaluronidase<br>Spreads toxin<br>through tissue</div><div class="f-box f-red" style="font-size:13px">Phospholipase A₂<br>Destroys cell<br>membranes</div><div class="f-box f-red" style="font-size:13px">Proteases<br>Destroy blood<br>vessel walls</div></div><div class="f-arr">↓ absorbed via LYMPHATICS not blood vessels</div><div class="f-box f-blu">Venom travels slowly through lymphatics → regional lymph nodes → bloodstream</div><div class="f-arr">↓ THIS is why immobilisation works</div><div class="f-box f-grn">Muscle pump stopped → lymph flow slows → venom spread delayed by hours</div></div><p class="cc-explain"><strong>Venom spreads via lymphatics, not veins. Walking, running, or using the bitten limb dramatically accelerates spread.</strong> Carrying the patient and immobilising the limb is not just comfort — it buys critical time before systemic envenomation occurs. Venom swallowed orally is digested and harmless.</p>
+  <div class="img-badge badge-clinical">CORRECT IMMOBILISATION</div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:200px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/pressure_band.png" alt="Pressure immobilisation bandage" onerror="this.style.background='#eee';this.alt='Image loading...'"></div>
+  <p class="clin-caption">Sutherland pressure immobilisation — wrap firmly from bite upward. You should be able to slide one finger underneath. Too tight = tourniquet = gangrene. Only by trained personnel for neurotoxic bites when hospital is &gt;30 min away.</p>
+  </div></div>
+
+  <div class="cc" id="ddc5"><div class="cc-trigger" onclick="togDD(5)"><div class="cc-num">5</div><div class="cc-text"><div class="cc-q">The 20WBCT — why glass, why 20 minutes, and what does it miss?</div><div class="cc-hint">Viper coagulopathy · fibrinogen consumption · glass requirement · limitations</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Russell's viper venom activates prothrombin → thrombin formed</div><div class="f-arr">↓ thrombin consumes fibrinogen → no stable clot forms</div><div class="f-box f-red">VICC: Venom-Induced Consumption Coagulopathy</div><div class="f-arr">↓ detected by</div><div class="f-box f-blu">20WBCT: blood cannot clot in 20 min = coagulation consumed</div><div class="f-arr">↓ why glass only</div><div class="f-box f-amb">Glass activates Hageman factor (Factor XII) → initiates intrinsic pathway → clot forms in normal blood. Plastic cannot activate Factor XII → blood stays liquid even without viper venom. False positive in plastic.</div></div><p class="cc-explain"><strong>Always use a clean, dry glass vial or test tube.</strong> Plastic tubes give false positives — blood that is actually normal will appear unclotted. This is the most common technical error with 20WBCT.</p><div class="danger"><div class="danger-tag">What 20WBCT misses</div><p>Elapid (cobra, krait) bites do NOT cause coagulopathy. A normal 20WBCT does not exclude elapid envenomation. Use clinical signs — ptosis, diplopia, weakness — to diagnose elapid bites.</p></div>
+  <div class="img-badge badge-clinical" style="margin-top:12px">CLOTTED vs NON-CLOTTED</div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:220px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/20wbct.jpg" alt="20WBCT clotted vs non-clotted" onerror="this.style.background='#eee';this.alt='Image loading...'"></div>
+  <p class="clin-caption">Left: blood clotted = normal. Right: blood still liquid at 20 min = viper envenomation → start ASV now. Always use clean glass — never plastic.</p>
+  </div></div>
+
+  <div class="cc" id="ddc6"><div class="cc-trigger" onclick="togDD(6)"><div class="cc-num">6</div><div class="cc-text"><div class="cc-q">Why does ASV not reverse established paralysis — and when should you expect it to work?</div><div class="cc-hint">Free vs bound venom · receptor kinetics · what ASV can and cannot do</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">ASV = antibody fragments against snake venom proteins</div><div class="f-arr">↓ binds and neutralises FREE venom in bloodstream</div><div class="f-row"><div class="f-box f-grn" style="font-size:13px">Stops new venom<br>from binding</div><div class="f-box f-grn" style="font-size:13px">Reverses ongoing<br>coagulopathy in vipers</div><div class="f-box f-red" style="font-size:13px">CANNOT dislodge<br>venom already bound<br>to receptors</div></div><div class="f-arr">↓</div><div class="f-box f-amb">Paralysis from bound venom → resolves as receptors regenerate over days to weeks</div></div><p class="cc-explain"><strong>The best time to give ASV is before paralysis develops.</strong> Once paralysis is established, ASV prevents further damage but cannot reverse what is done. This is why 24-hour observation with repeated SBC checks is essential — catch the neurotoxicity early, give ASV early, paralysis may never develop fully.</p><div class="pearl"><div class="pearl-tag">Coagulopathy is different</div><p>In viper bites, ASV rapidly reverses coagulopathy — because fibrinogen is being continuously consumed by circulating venom. Remove the venom → consumption stops → liver makes new fibrinogen → clotting restores within 6 hours. Check 20WBCT at 6h after ASV.</p></div></div></div>
+
+  <div class="cc" id="ddc7"><div class="cc-trigger" onclick="togDD(7)"><div class="cc-num">7</div><div class="cc-text"><div class="cc-q">Neostigmine — why it works for cobra but fails completely in krait</div><div class="cc-hint">Pre-synaptic vs post-synaptic block · acetylcholine · mechanism difference</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-amb" style="font-size:12px;width:100%">COBRA — Post-synaptic</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Venom blocks nicotinic receptors on muscle side<br>ACh still being released normally<br>Neostigmine → inhibits AChE → more ACh available → competes at receptor → reversal possible</div></div><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="f-box f-red" style="font-size:12px;width:100%">KRAIT — Pre-synaptic</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Venom blocks ACh RELEASE from nerve terminal<br>No ACh being released at all<br>Neostigmine → no ACh to preserve → completely useless</div></div></div></div><p class="cc-explain">In a 2010 study of 72 krait bite patients, <strong>not a single patient showed any improvement with neostigmine</strong> — even at higher doses. The mechanism makes this inevitable. Krait venom destroys the machinery that releases ACh. Neostigmine conserves ACh, but there is none to conserve.</p><div class="danger"><div class="danger-tag">Krait bite management</div><p>No pharmacological reversal exists. The only treatment is mechanical ventilation until the nerve terminals regenerate. Krait bite paralysis is FULLY REVERSIBLE with adequate ventilatory support. Patients who survive the respiratory failure recover completely.</p></div></div></div>
+
+  <div class="cc" id="ddc8"><div class="cc-trigger" onclick="togDD(8)"><div class="cc-num">8</div><div class="cc-text"><div class="cc-q">ASV reactions — who gets them, how severe, and what to do in 60 seconds</div><div class="cc-hint">Anaphylaxis · early vs late · adrenaline first · no prophylaxis evidence</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">ASV is horse serum → foreign protein → immune reaction in ~20% of patients</div><div class="f-arr">↓ two types</div><div class="f-row"><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Early (within 1h)</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Urticaria · rash<br>Bronchospasm<br>Hypotension<br>Anaphylaxis → Adrenaline IM</div></div><div style="flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-amb" style="font-size:12px;width:100%">Late (serum sickness, 5–10 days)</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Fever · rash<br>Joint pain<br>Lymphadenopathy<br>→ Oral prednisolone</div></div></div></div><p class="cc-explain"><strong>Stop ASV → Adrenaline 0.5 mg IM immediately → then antihistamine + hydrocortisone.</strong> There is no good evidence that prophylactic adrenaline or antihistamines before ASV prevent reactions reliably. Give them only if reaction actually occurs.</p><div class="pearl"><div class="pearl-tag">After stabilisation</div><p>Restart ASV once reaction has settled — at a slower rate. The patient still needs ASV. Fear of reactions causes undertreated envenomation, which is far more dangerous than the reaction itself.</p></div></div></div>
+
+  <div class="cc" id="ddc9"><div class="cc-trigger" onclick="togDD(9)"><div class="cc-num">9</div><div class="cc-text"><div class="cc-q">The Single Breath Count — why it is your most important monitoring tool</div><div class="cc-hint">Respiratory muscle weakness · NMJ failure · when to intubate</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Neurotoxic envenomation → progressive NMJ blockade</div><div class="f-arr">↓ proximal muscles first → diaphragm last</div><div class="f-box f-amb">Respiratory muscle weakness → reduced tidal volume → CO₂ retention → arrest</div><div class="f-arr">↓ detected early by Single Breath Count</div><div class="f-box f-blu">Deep breath → count aloud as far as possible in one breath</div><div class="f-arr">↓ results</div><div class="f-row"><div class="f-box f-grn" style="font-size:13px">≥25<br>Safe — continue monitoring</div><div class="f-box f-amb" style="font-size:13px">15–24<br>Prepare for intubation</div><div class="f-box f-red" style="font-size:13px">&lt;15<br>Intubate now</div></div></div><p class="cc-explain"><strong>Repeat SBC every 15–20 minutes in neurotoxic bites.</strong> A falling count gives you advance warning before SpO₂ drops. By the time oxygen saturation falls, the patient is already in respiratory failure. The SBC catches it earlier.</p>
+  <div class="img-badge badge-clinical">WHAT PTOSIS LOOKS LIKE</div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:200px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/ptosis.jpg" alt="Ptosis in neurotoxic snakebite" onerror="this.style.background='#eee';this.alt='Image loading...'"></div>
+  <p class="clin-caption">Drooping eyelids (ptosis) — this is the FIRST sign of neurotoxic bite. When you see this, start ASV immediately and monitor SBC every 15 minutes.</p>
+  <div class="pearl"><div class="pearl-tag">At PHC without ventilator</div><p>Bag-mask ventilation by hand can sustain a krait bite patient for several hours during transfer. Two staff members taking turns. Do not leave this patient. Krait paralysis is fully reversible if the patient survives the respiratory failure.</p></div></div></div>
+
+  <div class="cc" id="ddc10"><div class="cc-trigger" onclick="togDD(10)"><div class="cc-num">10</div><div class="cc-text"><div class="cc-q">Russell's viper — why it is the most dangerous snake in India</div><div class="cc-hint">DIC · renal failure · neurotoxicity · pituitary · multi-organ</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-red">Russell's viper venom — vasculotoxic + neurotoxic + myotoxic simultaneously</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-red" style="font-size:12px">VICC / DIC<br>Fibrinogen consumed<br>Spontaneous bleeding</div><div class="f-box f-red" style="font-size:12px">Renal failure<br>Direct tubular toxicity<br>+ DIC microthrombi</div><div class="f-box f-red" style="font-size:12px">Neurotoxicity*<br>Presynaptic<br>(South India only)</div></div><div class="f-arr">↓ additional unique feature</div><div class="f-box f-amb">Pituitary haemorrhage → acute Sheehan-like syndrome (rare but documented)</div></div><p class="cc-explain">Russell's viper is the most medically complex envenomation in India. <strong>Saw-scaled viper causes DIC but rarely renal failure. Russell's viper causes both.</strong> After ASV, watch for renal failure developing 24–72 hours later even if initial response is good. Monitor urine output daily.</p>
+  <div class="img-badge badge-clinical">WHAT HAEMATOTOXIC BITE LOOKS LIKE</div>
+  <div class="clin-grid">
+    <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/gum_bleed.png" alt="Gum bleeding viper bite" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="clin-grid-label">🩸 Gum bleeding — DIC sign</div></div>
+    <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/swelling.jpg" alt="Local swelling viper bite" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="clin-grid-label">🦶 Massive local swelling</div></div>
+    <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/blister.jpg" alt="Haemorrhagic blisters" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="clin-grid-label">💧 Haemorrhagic blisters</div></div>
+    <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/blisters2.jpg" alt="Necrosis snakebite" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="clin-grid-label">⚫ Necrosis at bite site</div></div>
+  </div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:200px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/ecchymosis.jpg" alt="Ecchymosis viper bite" onerror="this.style.background='#eee';this.alt='Image loading...'"></div>
+  <p class="clin-caption">Ecchymosis (skin bruising) spreading away from bite site — blood vessels being destroyed by venom. This patient needs ASV urgently.</p>
+  <div class="danger"><div class="danger-tag">Renal failure management</div><p>IV fluids — NS 1–1.5 L over 1–2 hours if oliguria. Monitor urine output hourly. Dialysis if creatinine rising or anuria. Do not give FFP or blood until adequate ASV is given — replacing clotting factors with venom still active just wastes them.</p></div></div></div>
+
+  <div class="cc" id="ddc11"><div class="cc-trigger" onclick="togDD(11)"><div class="cc-num">11</div><div class="cc-text"><div class="cc-q">Local necrosis and compartment syndrome — when to operate and when not to</div><div class="cc-hint">Tissue destruction · fasciotomy trap · wound management</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Viper venom → phospholipases, proteases → direct tissue destruction</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-red" style="font-size:13px">Cellulitis → blistering → necrosis</div><div class="f-box f-amb" style="font-size:13px">Compartment syndrome → pressure → ischaemia</div></div></div><p class="cc-explain"><strong>Wound management at PHC:</strong> Clean with antiseptic, do not apply anything else. Antibiotics if cellulitis (Amoxyclav). Tetanus toxoid. Refer for definitive wound care.</p>
+  <div class="clin-grid">
+    <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/compartment.png" alt="Compartment syndrome" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="clin-grid-label">Compartment syndrome — tense, shiny swelling</div></div>
+    <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/snakebite/gangrene.png" alt="Gangrene from tourniquet" onerror="this.style.background='#eee';this.alt='Image loading...'"><div class="clin-grid-label">Gangrene — caused by tight tourniquet</div></div>
+  </div>
+  <p class="clin-caption">Left: Compartment syndrome — refer, do not incise at PHC. Right: This gangrene was caused by a tourniquet applied before the patient reached hospital. The snake did not cause this — the first aid did.</p>
+  <div class="danger"><div class="danger-tag">Fasciotomy trap</div><p>Fasciotomy for compartment syndrome after snake bite is controversial and often makes things worse. Venom-induced tissue oedema looks like compartment syndrome but usually is not. Measure intra-compartment pressure before cutting. Most cases resolve with ASV + elevation. Never cut at PHC level.</p></div><div class="pearl" style="margin-top:10px"><div class="pearl-tag">NSAIDs are contraindicated</div><p>Pain relief: paracetamol or tramadol only. NSAIDs and aspirin worsen bleeding in viper bites — platelet function further impaired.</p></div></div></div>
+
+  <div class="cc" id="ddc12"><div class="cc-trigger" onclick="togDD(12)"><div class="cc-num">12</div><div class="cc-text"><div class="cc-q">Hump-Nosed Viper — the snake ASV cannot touch</div><div class="cc-hint">Hypnale hypnale · polyvalent failure · Gujarat · supportive only</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Hypnale hypnale — increasingly recognised in Western Ghats, parts of Gujarat</div><div class="f-arr">↓ causes</div><div class="f-row"><div class="f-box f-red" style="font-size:13px">Local necrosis</div><div class="f-box f-red" style="font-size:13px">Coagulopathy / DIC</div><div class="f-box f-red" style="font-size:13px">Acute renal failure</div></div><div class="f-arr">↓ polyvalent ASV tested and proven</div><div class="f-box f-red">INEFFECTIVE — ASV does not neutralise Hypnale venom</div><div class="f-arr">↓ management</div><div class="f-box f-amb">Supportive: wound care, FFP for DIC, dialysis for renal failure</div></div><p class="cc-explain"><strong>Giving ASV for Hump-Nosed Viper bite wastes vials and risks anaphylaxis without benefit.</strong> If identified (small pit viper, upturned nose), manage supportively. Know your local snakes — if Hypnale is present in your area, do not reflexively reach for ASV for all viper bites.</p></div></div>
+
+  <div class="cc" id="ddc13x"><div class="cc-trigger" onclick="togDD('13x')"><div class="cc-num">16</div><div class="cc-text"><div class="cc-q">20WBCT — what clotted vs non-clotted actually looks like</div><div class="cc-hint">Bedside test · visual guide · glass vial · tilt at 20 min</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px">
+  <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:0 auto 16px">
+    <!-- Background -->
+    <rect width="560" height="320" rx="16" fill="#F4F6F9"/>
+    <!-- Title -->
+    <text x="280" y="30" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="700" font-size="15" fill="#0D1117">20-Minute Whole Blood Clotting Test (20WBCT)</text>
+
+    <!-- Left vial — CLOTTED (normal) -->
+    <!-- Vial body -->
+    <rect x="80" y="60" width="60" height="120" rx="8" fill="#ffffff" stroke="#DDE2EC" stroke-width="2"/>
+    <!-- Vial neck -->
+    <rect x="95" y="48" width="30" height="16" rx="4" fill="#ffffff" stroke="#DDE2EC" stroke-width="2"/>
+    <!-- Vial cap -->
+    <rect x="93" y="40" width="34" height="12" rx="4" fill="#6EE7B7" stroke="#059669" stroke-width="1.5"/>
+    <!-- Blood clot (dark solid lump) -->
+    <ellipse cx="110" cy="155" rx="25" ry="18" fill="#8B1A1A"/>
+    <ellipse cx="110" cy="148" rx="23" ry="12" fill="#A52A2A"/>
+    <ellipse cx="110" cy="143" rx="18" ry="7" fill="#B83232"/>
+    <!-- Label -->
+    <rect x="55" y="195" width="110" height="28" rx="8" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1.5"/>
+    <text x="110" y="212" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="700" font-size="12" fill="#059669">CLOTTED ✓</text>
+    <text x="110" y="240" text-anchor="middle" font-family="Outfit,sans-serif" font-size="11" fill="#4A5568">Normal clotting</text>
+    <text x="110" y="255" text-anchor="middle" font-family="Outfit,sans-serif" font-size="11" fill="#4A5568">No coagulopathy</text>
+    <text x="110" y="272" text-anchor="middle" font-family="Outfit,sans-serif" font-size="11" fill="#059669" font-weight="600">Elapid bite / Dry bite</text>
+
+    <!-- Right vial — NON-CLOTTED (VICC) — tilted to show liquid -->
+    <!-- Tilted vial group -->
+    <g transform="rotate(-15, 420, 120)">
+      <rect x="390" y="58" width="60" height="120" rx="8" fill="#ffffff" stroke="#DDE2EC" stroke-width="2"/>
+      <rect x="405" y="46" width="30" height="16" rx="4" fill="#ffffff" stroke="#DDE2EC" stroke-width="2"/>
+      <rect x="403" y="38" width="34" height="12" rx="4" fill="#FEB2B2" stroke="#E53E3E" stroke-width="1.5"/>
+      <!-- Liquid blood (flat surface = not clotted) -->
+      <rect x="392" y="118" width="56" height="56" rx="0 0 6 6" fill="#CC2B2B"/>
+      <rect x="392" y="115" width="56" height="8" rx="3" fill="#E53E3E"/>
+    </g>
+    <!-- Drip lines showing liquid flowing -->
+    <line x1="408" y1="175" x2="402" y2="195" stroke="#E53E3E" stroke-width="2" stroke-dasharray="3,2" opacity="0.6"/>
+    <circle cx="400" cy="200" r="4" fill="#E53E3E" opacity="0.5"/>
+
+    <rect x="360" y="200" width="120" height="28" rx="8" fill="#FFF5F5" stroke="#FEB2B2" stroke-width="1.5"/>
+    <text x="420" y="217" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="700" font-size="12" fill="#E53E3E">NOT CLOTTED ✗</text>
+    <text x="420" y="240" text-anchor="middle" font-family="Outfit,sans-serif" font-size="11" fill="#4A5568">Blood still liquid</text>
+    <text x="420" y="255" text-anchor="middle" font-family="Outfit,sans-serif" font-size="11" fill="#4A5568">Fibrinogen consumed</text>
+    <text x="420" y="272" text-anchor="middle" font-family="Outfit,sans-serif" font-size="11" fill="#E53E3E" font-weight="600">Viper VICC → Start ASV now</text>
+
+    <!-- Clock in middle -->
+    <circle cx="280" cy="110" r="38" fill="#EFF6FF" stroke="#93C5FD" stroke-width="2"/>
+    <circle cx="280" cy="110" r="3" fill="#2563EB"/>
+    <!-- Clock hands at 20 min mark -->
+    <line x1="280" y1="110" x2="280" y2="78" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="280" y1="110" x2="304" y2="120" stroke="#0D1117" stroke-width="2" stroke-linecap="round"/>
+    <text x="280" y="107" text-anchor="middle" font-family="Outfit,sans-serif" font-size="9" fill="#2563EB">12</text>
+    <text x="314" y="115" text-anchor="middle" font-family="Outfit,sans-serif" font-size="9" fill="#2563EB">3</text>
+    <text x="280" y="148" text-anchor="middle" font-family="Outfit,sans-serif" font-size="9" fill="#2563EB">6</text>
+    <text x="246" y="115" text-anchor="middle" font-family="Outfit,sans-serif" font-size="9" fill="#2563EB">9</text>
+    <text x="280" y="162" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="700" font-size="12" fill="#2563EB">20 min</text>
+    <text x="280" y="176" text-anchor="middle" font-family="Outfit,sans-serif" font-size="10" fill="#4A5568">then tilt gently</text>
+
+    <!-- Glass only note -->
+    <rect x="200" y="285" width="160" height="22" rx="6" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1"/>
+    <text x="280" y="299" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="700" font-size="11" fill="#D97706">⚠ Glass vial only — never plastic</text>
+  </svg>
+  <p class="cc-explain">Write <strong>Clotted</strong> or <strong>Not Clotted</strong> — never "positive" or "negative." Repeat every 30 min for 3 hours in any suspected viper bite. Even if first result is clotted, early VICC can appear later. After ASV: recheck at 6 hours to confirm coagulation is restored.</p>
+  <div class="pearl"><div class="pearl-tag">Why glass only</div><p>Glass surface activates Factor XII (Hageman factor) → triggers the intrinsic clotting cascade → blood clots in 10–20 min normally. Plastic cannot activate Factor XII → blood stays liquid even in normal patients. Using plastic = guaranteed false positive.</p></div>
+  </div></div>
+
+  <div class="cc" id="ddc16"><div class="cc-trigger" onclick="togDD(16)"><div class="cc-num">17</div><div class="cc-text"><div class="cc-q">Haematotoxic venom — how viper kills through your blood, step by step</div><div class="cc-hint">VICC · fibrinogen · prothrombin activator · DIC · why ASV fixes it</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Viper bites → venom enters bloodstream</div><div class="f-arr">↓ 3 weapons simultaneously</div><div class="f-row"><div style="flex:1;min-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Prothrombin activators</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Activate thrombin<br>→ mass fibrinogen consumption<br>→ VICC / DIC</div></div><div style="flex:1;min-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Haemorrhagins</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Destroy blood vessel walls<br>→ spontaneous bleeding<br>→ gums, nose, bite site</div></div><div style="flex:1;min-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Phospholipase A₂</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.7;padding:4px">Lyses RBCs and platelets<br>→ haemoglobinuria<br>→ AKI</div></div></div><div class="f-arr">↓ result</div><div class="f-box f-red">No clotting factors + destroyed vessels + haemolysis → bleeds from everywhere</div><div class="f-arr">↓ ASV binds all three toxins → neutralises them</div><div class="f-box f-grn">Liver re-synthesises fibrinogen in 6 hours → 20WBCT becomes clotted</div></div><p class="cc-explain"><strong>VICC is not the same as DIC.</strong> In DIC, clots form in vessels (microthrombi) AND bleed elsewhere. In VICC, the venom specifically consumes fibrinogen without widespread microthrombi. This is why patients with VICC from snake bite often have a better outcome than DIC from sepsis — the mechanism is more targeted and fully reversible with ASV.</p><div class="pearl"><div class="pearl-tag">Lab pattern of VICC</div><p>Fibrinogen very low or zero · PT/APTT prolonged · D-Dimer elevated · Platelet count moderately low · Peripheral smear: schistocytes (helmet cells) from microangiopathic haemolysis in severe cases.</p></div></div></div>
+
+  <div class="cc" id="ddc17"><div class="cc-trigger" onclick="togDD(17)"><div class="cc-num">18</div><div class="cc-text"><div class="cc-q">Labs — what each test tells you and why you order it</div><div class="cc-hint">CBC · PT/APTT · fibrinogen · creatinine · CPK · urine · ECG</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px">
+  <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:12px 0;font-size:13px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--surface2);border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--text3)">Test</div><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--text3)">What it shows</div><div style="padding:8px 10px;font-weight:700;font-size:11px;color:var(--text3)">When to act</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">20WBCT</div><div style="padding:8px 10px;color:var(--text2)">Fibrinogen consumed by viper venom</div><div style="padding:8px 10px;color:var(--red)">Not clotted → start ASV now</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">Platelet count</div><div style="padding:8px 10px;color:var(--text2)">Thrombocytopenia in viper VICC</div><div style="padding:8px 10px;color:var(--red)">&lt;50,000 + bleeding → FFP/platelets after ASV</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">PT / APTT</div><div style="padding:8px 10px;color:var(--text2)">Clotting factor consumption. More sensitive than 20WBCT.</div><div style="padding:8px 10px;color:var(--red)">Prolonged → viper coagulopathy confirmed</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">Fibrinogen + D-Dimer</div><div style="padding:8px 10px;color:var(--text2)">Low fibrinogen + high D-Dimer = VICC fingerprint</div><div style="padding:8px 10px;color:var(--red)">Fibrinogen &lt;100 mg/dl + active bleed → FFP after ASV</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">Serum Creatinine</div><div style="padding:8px 10px;color:var(--text2)">AKI — Russell's viper specifically. Baseline then daily.</div><div style="padding:8px 10px;color:var(--red)">Rising → aggressive fluid, consider dialysis referral</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">Serum K⁺</div><div style="padding:8px 10px;color:var(--text2)">Hyperkalaemia from haemolysis + AKI</div><div style="padding:8px 10px;color:var(--red)">K⁺ &gt;6.5 → emergency dialysis</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">Urine colour + dipstick</div><div style="padding:8px 10px;color:var(--text2)">Pink/red = haemoglobinuria or haematuria. Brown/black = myoglobinuria.</div><div style="padding:8px 10px;color:var(--red)">Any abnormal colour → renal risk, increase fluids</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">CPK (Creatine kinase)</div><div style="padding:8px 10px;color:var(--text2)">Muscle destruction — sea snake, Russell's viper myotoxicity</div><div style="padding:8px 10px;color:var(--red)">CPK &gt;1000 → rhabdomyolysis risk → force fluids</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px 10px;font-weight:600;color:var(--text)">ECG</div><div style="padding:8px 10px;color:var(--text2)">Sinus tachycardia, ST changes, AV block in viper bites</div><div style="padding:8px 10px;color:var(--amber)">Baseline in all moderate–severe bites</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr"><div style="padding:8px 10px;font-weight:600;color:var(--text)">ABG</div><div style="padding:8px 10px;color:var(--text2)">CO₂ retention → respiratory muscle fatigue in neurotoxic bites</div><div style="padding:8px 10px;color:var(--red)">⚠ Contraindicated in active coagulopathy. Use venous BGS or SpO₂.</div></div>
+  </div>
+  <div class="danger"><div class="danger-tag">Do NOT delay ASV for labs</div><p>If clinical envenomation is clear — ptosis, spontaneous bleeding, non-clotting 20WBCT — give ASV immediately. Labs confirm, they do not diagnose. The lab report takes 30–60 minutes. Venom continues binding during every minute of delay.</p></div>
+  </div></div>
+
+  <div class="cc" id="ddc18"><div class="cc-trigger" onclick="togDD(18)"><div class="cc-num">19</div><div class="cc-text"><div class="cc-q">Snake bite in pregnancy — how management changes and what you must not miss</div><div class="cc-hint">ASV dose · foetal assessment · DIC in pregnancy · placental abruption</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Pregnant woman with snake bite — same clinical approach, two patients now</div><div class="f-arr">↓</div><div class="f-row"><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-grn" style="font-size:12px;width:100%">What stays same</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.8;padding:4px">ASV: SAME dose<br>Same route (IV only)<br>Same indications<br>Same 20WBCT protocol<br>Neostigmine if cobra</div></div><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">What changes / adds</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.8;padding:4px">Monitor foetal heart rate<br>Refer gynaecologist early<br>Watch for abruption<br>DIC risk extremely high<br>PPH risk post-delivery</div></div></div><div class="f-arr">↓ most dangerous combination</div><div class="f-box f-red">Viper bite + pregnancy + DIC = catastrophic. Placental abruption causes foetal death + maternal exsanguination.</div></div><p class="cc-explain"><strong>The most important rule: never reduce ASV dose in pregnancy.</strong> The venom dose from the snake is the same regardless of the patient's pregnancy status. Undertreating a pregnant woman to "protect the baby" does the opposite — the venom harms both. ASV is the only thing that stops the venom.</p><div class="danger"><div class="danger-tag">Obstetric emergency signs in viper bite</div><p>Sudden abdominal pain + vaginal bleeding in a viper bite patient = placental abruption until proven otherwise. This is DIC-mediated. Rush to theatre after correcting coagulopathy — do not operate in active VICC.</p></div><div class="pearl" style="margin-top:10px"><div class="pearl-tag">Foetal monitoring</div><p>Foetal heart rate should be checked every 30 minutes in confirmed envenomation. Foetal bradycardia or decelerations = foetal distress from hypoxia or VICC. Obstetric referral immediately after stabilisation.</p></div></div></div>
+
+  <div class="cc" id="ddc19"><div class="cc-trigger" onclick="togDD(19)"><div class="cc-num">20</div><div class="cc-text"><div class="cc-q">Serum sickness — the reaction that arrives a week after the bite is over</div><div class="cc-hint">Day 5–10 · immune complex · fever · rash · joint pain · prednisolone</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">ASV is made from horse serum → foreign protein in human blood</div><div class="f-arr">↓ immune system forms antibodies against horse protein</div><div class="f-box f-amb">Immune complexes deposit in joints, vessels, kidneys</div><div class="f-arr">↓ 5–14 days after ASV</div><div class="f-row"><div class="f-box f-amb" style="font-size:13px">Fever<br>Itching + urticaria</div><div class="f-box f-amb" style="font-size:13px">Joint pain<br>Lymphadenopathy</div><div class="f-box f-amb" style="font-size:13px">Myalgia<br>Rare: nephritis</div></div><div class="f-arr">↓ treatment</div><div class="f-box f-grn">Oral Prednisolone 5 mg 6-hourly × 5–7 days · Chlorpheniramine 2 mg 6-hourly for itch</div></div><p class="cc-explain"><strong>Every patient who received ASV must be counselled before discharge: return immediately if fever, rash, joint pain, or swelling develops in the next 2 weeks.</strong> Most patients do not connect their joint pain a week later with the snake bite — they present to a different doctor and get treated for viral fever, missing the diagnosis.</p></div></div>
+
+<div class="cc-hint">Tourniquet · delay · not observing krait · ASV under-dosing</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px"><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 1</div><p><strong style="color:var(--red)">Applying tourniquet.</strong> Causes gangrene, worsens local necrosis, massive venom surge when released.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 2</div><p><strong style="color:var(--red)">Sending home after "normal examination."</strong> Krait bite has no local signs. All snake bites need 24-hour observation minimum.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 3</div><p><strong style="color:var(--red)">Not doing 20WBCT.</strong> Missing viper coagulopathy that is already consuming clotting factors.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 4</div><p><strong style="color:var(--red)">Fearing ASV reactions so much that ASV is not given.</strong> Undertreated envenomation kills. Anaphylaxis is manageable. Paralysis and DIC are harder.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 5</div><p><strong style="color:var(--red)">Giving test dose of ASV.</strong> Test dose does not predict anaphylaxis and wastes time. Give the therapeutic dose.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 6</div><p><strong style="color:var(--red)">Not monitoring Single Breath Count in neurotoxic bites.</strong> Patient crashes without warning. SBC every 15 min gives advance notice.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 7</div><p><strong style="color:var(--red)">Giving neostigmine for krait bite.</strong> Completely ineffective — delays appropriate ventilatory support.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 8</div><p><strong style="color:var(--red)">Using plastic tube for 20WBCT.</strong> False positive — treats non-existent DIC.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 9</div><p><strong style="color:var(--red)">Giving NSAIDs for pain in viper bite.</strong> Worsens platelet dysfunction and bleeding.</p></div><div class="danger" style="margin-bottom:10px"><div class="danger-tag">Mistake 10</div><p><strong style="color:var(--red)">Giving FFP before adequate ASV.</strong> Replaces clotting factors that the circulating venom immediately consumes again. Give ASV first, FFP only after clotting is confirmed restored.</p></div></div></div>
+
+  <div class="cc" id="ddc14"><div class="cc-trigger" onclick="togDD(14)"><div class="cc-num">14</div><div class="cc-text"><div class="cc-q">Full management — what you do for Bhikhabhai in order, with doses</div><div class="cc-hint">Stepwise · ASV dosing · SBC · transfer decision</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Bhikhabhai: 52M, nocturnal bite, no local signs, apnoeic at 5 AM, likely krait</div><div class="f-arr">↓</div><div class="f-box f-red">Step 1: Airway first — bag-mask ventilation immediately, O₂, IV access</div><div class="f-arr">↓</div><div class="f-box f-amb">Step 2: ASV 10 vials in 100 ml NS over 1 hour — krait bite confirmed by clinical picture</div><div class="f-arr">↓</div><div class="f-box f-blu">Step 3: Neostigmine 2.5 mg IV after Atropine 0.6 mg IV — try once, assess in 30 min</div><div class="f-arr">↓ no response expected (krait = pre-synaptic)</div><div class="f-box f-red">Step 4: Arrange ventilator transfer — bag-mask all the way if needed</div><div class="f-arr">↓</div><div class="f-box f-grn">Prognosis: Full recovery if ventilated adequately — krait paralysis is completely reversible</div></div><p class="cc-explain"><strong>Bhikhabhai was found too late — no PHC doctor saw him during the 6-hour window where intervention could have prevented respiratory arrest.</strong> The lesson is not about the hospital management. It is about the 24-hour observation rule that should have kept him in the PHC from midnight onwards. The next patient can survive.</p><div class="pearl"><div class="pearl-tag">Transfer guidance</div><p>Refer all: neurotoxic bites requiring ventilation · coagulopathy not correcting after 2 doses of ASV · renal failure · compartment syndrome · Hump-Nosed Viper bites.</p></div></div></div>
+
+  <div class="cc" id="ddc15"><div class="cc-trigger" onclick="togDD(15)"><div class="cc-num">15</div><div class="cc-text"><div class="cc-q">Sources — where this content comes from</div><div class="cc-hint">Guidelines · textbooks · Indian protocols</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px"><div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Primary Indian guidelines</div><p>National Snake Bite Management Protocol — MoHFW India / NHM, 2016. Available at nhm.gov.in. This is the Government of India standard of care protocol for all levels of healthcare.</p></div><div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Standard Treatment Guidelines</div><p>Management of Snake Bite — NHSRC India, 2017. Includes species-specific AN dosing schedules and ASV administration protocols.</p></div><div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Textbooks used</div><p>Review of Forensic Medicine and Toxicology — Gautam Biswas (Marrow 8.0, 2024). Snake bite chapter: classification, venom types, Big 4 species, clinical features, management.</p></div><div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Clinical reference</div><p>Snake Bite: Indian Guidelines and Protocol — Surjit Singh, Gagandip Singh. SCTIMST. WHO-recommended protocol adapted for Indian conditions.</p></div><div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Neostigmine evidence</div><p>Role of neostigmine and polyvalent antivenom in Indian common krait (Bungarus caeruleus) bite — PubMed 2010. 72-patient study demonstrating complete failure of neostigmine in krait envenomation.</p></div><div class="pearl"><div class="pearl-tag">Gujarat-specific guide</div><p>Snakebite: Primary Management and Clinical Protocol — Your Medical Officer (Gujarati). Species classification, ASV triggers, SBC test, 20WBCT visual — Indian frontline doctor perspective.</p></div></div></div>
+`;}
+</script>
+</body>
+</html>
