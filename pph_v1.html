@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPH · Drzix</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6F9;--surface:#FFFFFF;--surface2:#EEF1F7;--border:#DDE2EC;--text:#0D1117;--text2:#4A5568;--text3:#8896AB;--red:#E53E3E;--red-bg:#FFF5F5;--red-bd:#FEB2B2;--amber:#D97706;--amber-bg:#FFFBEB;--amber-bd:#FCD34D;--green:#059669;--green-bg:#ECFDF5;--green-bd:#6EE7B7;--blue:#2563EB;--blue-bg:#EFF6FF;--blue-bd:#93C5FD;--purple:#7C3AED;--purple-bg:#F5F3FF;--purple-bd:#C4B5FD;--accent:#22C55E;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+.layer{display:none}.layer.active{display:block}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;position:sticky;top:0;z-index:50;}
+.topbar-inner{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.tb-topic{font-size:17px;font-weight:700;color:var(--text)}.tb-sep{color:var(--text3)}.tb-sub{font-size:13px;font-weight:600;color:var(--text2)}
+.tb-badge{margin-left:auto;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.07em;padding:3px 12px;}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}.badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.page-content{padding-bottom:110px}
+.steps{max-width:600px;margin:0 auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.step-card:hover{border-color:#BFC8D8}.step-card.open{border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.step-trigger{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
+.step-num{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;transition:all .2s}
+.num-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}.num-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}.num-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}.num-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.step-card.open .step-num{background:var(--purple);color:#fff;border-color:var(--purple)}
+.step-meta{flex:1}.step-timing{font-size:11px;font-weight:600;letter-spacing:.06em;margin-bottom:2px;text-transform:uppercase}
+.timing-red{color:var(--red)}.timing-amber{color:var(--amber)}.timing-green{color:var(--green)}.timing-blue{color:var(--blue)}
+.step-title{font-size:16px;font-weight:600;color:var(--text);line-height:1.3}
+.step-arrow{font-size:18px;color:var(--text3);transition:transform .25s;flex-shrink:0}.step-card.open .step-arrow{transform:rotate(180deg)}
+.step-body{display:none;padding:0 18px 20px;border-top:1px solid var(--border)}.step-card.open .step-body{display:block}
+.actions{display:flex;flex-direction:column;gap:0}
+.action-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}.action-row:last-child{border-bottom:none}
+.action-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:7px}
+.dot-red{background:var(--red)}.dot-amber{background:var(--amber)}.dot-green{background:var(--green)}.dot-blue{background:var(--blue)}
+.action-main{font-size:15px;font-weight:500;color:var(--text);line-height:1.45}.action-sub{font-size:12px;color:var(--text3);margin-top:2px;line-height:1.4}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin:14px 0 8px}
+.monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.monitor-item{background:var(--surface2);border-radius:10px;padding:10px 12px}.monitor-label{font-size:11px;color:var(--text3);margin-bottom:3px}.monitor-val{font-size:14px;font-weight:600;color:var(--text)}
+.drug-item{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px}.drug-item:last-child{margin-bottom:0}
+.drug-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}.drug-dose{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:3px}.drug-ci{font-size:12px;color:var(--red)}
+.note-box{background:var(--surface2);border-radius:10px;padding:10px 14px;margin-top:10px;font-size:13px;color:var(--text2);line-height:1.55}
+.fallback-box{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:12px 14px;margin-top:10px}
+.fallback-tag{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.08em;margin-bottom:8px}
+.fallback-row{font-size:14px;color:var(--amber);padding:4px 0;border-bottom:1px solid var(--amber-bd);line-height:1.5}.fallback-row:last-child{border-bottom:none}
+.emerg-header-card{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.emerg-tag{font-size:11px;font-weight:700;color:var(--red);letter-spacing:.08em;margin-bottom:4px}.emerg-desc{font-size:14px;color:var(--red);line-height:1.7}
+.antidote-box{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:12px 14px;margin-top:8px}
+.antidote-tag{font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px;letter-spacing:.06em}.antidote-text{font-size:14px;font-weight:500;color:var(--green)}
+.checklist{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}.check-row:last-child{border-bottom:none}
+.chk-box{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}.chk-box.checked{background:var(--green-bg);border-color:var(--green-bd)}
+.chk-label{font-size:14px;font-weight:500;color:var(--text)}.chk-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.chk-progress{font-size:12px;color:var(--text3);text-align:right;margin-top:8px}
+.clin-img{width:100%;border-radius:12px;object-fit:cover;display:block;background:var(--border)}
+.clin-img-wrap{border-radius:12px;overflow:hidden;margin:12px 0}
+.clin-caption{font-size:12px;color:var(--text3);text-align:center;margin-top:6px;font-style:italic;line-height:1.4}
+.clin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.clin-grid-item{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.clin-grid-item img{width:100%;height:140px;object-fit:cover;display:block}
+.clin-grid-label{padding:5px 8px;font-size:11px;font-weight:600;color:var(--text2);background:var(--surface2)}
+.img-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 8px;border-radius:4px;margin-bottom:8px}
+.badge-clinical{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+.version-tag{text-align:center;font-size:11px;color:var(--text3);padding:16px 20px 8px}
+/* SEE LAYER */
+.dots-wrap{max-width:560px;margin:0 auto;padding:20px 20px 0;display:flex;align-items:center;gap:12px}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;flex-shrink:0}.sdot.seen{background:var(--accent)}.sdot.active{background:var(--purple);width:24px;border-radius:4px}
+.dots-label{font-size:12px;color:var(--text3);margin-left:4px}
+.card-area{max-width:560px;margin:0 auto;padding:20px 20px 0}
+.q-number{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:10px}
+.q-text{font-size:24px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:20px}
+.tap-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:24px 20px;transition:border-color .2s,box-shadow .2s;overflow:hidden}
+.tap-card:hover{border-color:var(--purple-bd)}.tap-card.revealed{cursor:default;border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.tap-hint{display:flex;flex-direction:column;align-items:center;gap:12px;transition:opacity .2s}
+.tap-icon{width:52px;height:52px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px}
+.tap-label{font-size:14px;font-weight:500;color:var(--text3)}
+.see-answer{display:none;flex-direction:column;align-items:center;gap:14px;width:100%;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.see-answer.show{display:flex;opacity:1;transform:translateY(0)}
+.flow{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%}
+.f-box{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;text-align:center;min-width:180px;max-width:100%;line-height:1.45}
+.f-row{display:flex;gap:8px;justify-content:center;width:100%;flex-wrap:wrap}.f-arr{font-size:16px;color:var(--text3);line-height:1}
+.f-gray{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}.f-red{background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red)}.f-amb{background:var(--amber-bg);border:1px solid var(--amber-bd);color:var(--amber)}.f-grn{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}.f-blu{background:var(--blue-bg);border:1px solid var(--blue-bd);color:var(--blue)}.f-pur{background:var(--purple-bg);border:1px solid var(--purple-bd);color:var(--purple)}
+.caption{font-size:14px;font-weight:500;color:var(--text2);text-align:center;line-height:1.65;padding:0 8px}
+.see-nav{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(to bottom,transparent,var(--bg) 35%);padding:20px 20px 28px;z-index:49}
+.see-nav-inner{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.see-btn{flex:1;padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s}.see-btn:hover{opacity:.88}.see-btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-ghost{background:var(--surface);border:1px solid var(--border);color:var(--text2)}.btn-dark{background:var(--text);color:#fff}.btn-green{background:var(--accent);color:#fff}
+.end-wrap{max-width:560px;margin:0 auto;padding:40px 20px 0;text-align:center}
+.end-tick{width:64px;height:64px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green-bd);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px}
+.end-title{font-size:26px;font-weight:800;color:var(--text);margin-bottom:10px}.end-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:340px;margin:0 auto 28px}
+.end-btns-v{display:flex;flex-direction:column;gap:10px}.end-btn-v{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s}.end-btn-v:hover{opacity:.88}
+/* DIG DEEPER */
+.hero{max-width:680px;margin:0 auto;padding:32px 20px 20px}
+.hero-eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--purple);margin-bottom:10px;text-transform:uppercase}
+.hero-title{font-size:34px;font-weight:800;color:var(--text);line-height:1.15;margin-bottom:14px}
+.hero-def{font-size:17px;font-weight:500;color:var(--text2);line-height:1.65;border-left:4px solid var(--accent);padding-left:16px;margin-bottom:20px}
+.hero-story{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;font-size:15px;color:var(--text2);line-height:1.75}
+.hero-story strong{color:var(--text);font-weight:600}
+.story-tag{display:inline-block;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 8px;margin-bottom:10px}
+.dd-section-label{max-width:680px;margin:28px auto 12px;padding:0 20px;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--text3);text-transform:uppercase}
+.cards{max-width:680px;margin:0 auto;padding:0 20px 120px;display:flex;flex-direction:column;gap:10px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.cc:hover{border-color:#BFC8D8}.cc.open{border-color:var(--purple-bd);box-shadow:0 0 0 3px var(--purple-bg)}
+.cc-trigger{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
+.cc-num{width:34px;height:34px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text2);flex-shrink:0;transition:background .2s,color .2s}
+.cc.open .cc-num{background:var(--purple);color:#fff;border-color:var(--purple)}
+.cc-text{flex:1}.cc-q{font-size:16px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:2px}.cc-hint{font-size:13px;color:var(--text3)}
+.cc-arrow{font-size:18px;color:var(--text3);transition:transform .25s;flex-shrink:0}.cc.open .cc-arrow{transform:rotate(180deg)}
+.cc-body{display:none;padding:0 20px 22px;border-top:1px solid var(--border)}.cc.open .cc-body{display:block}
+.dd-flow{display:flex;flex-direction:column;align-items:center;gap:4px;padding:20px 0 16px;width:100%}.dd-flow .f-box{font-size:14px}
+.cc-explain{font-size:15px;color:var(--text2);line-height:1.75;margin-bottom:14px}.cc-explain strong{color:var(--text);font-weight:600}
+.pearl{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:14px 16px;margin-top:4px}
+.pearl-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:5px;text-transform:uppercase}
+.pearl p{font-size:14px;color:var(--amber);line-height:1.6}
+.danger{background:var(--red-bg);border:1px solid var(--red-bd);border-radius:12px;padding:14px 16px;margin-top:4px}
+.danger-tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--red);margin-bottom:5px;text-transform:uppercase}
+.danger p{font-size:14px;color:var(--red);line-height:1.6}
+.end-nav{position:sticky;bottom:0;background:linear-gradient(to bottom,transparent,var(--bg) 35%);padding:20px 20px 28px;z-index:49}
+.end-nav-inner{max-width:680px;margin:0 auto;display:flex;gap:10px}
+.end-btn-n{flex:1;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:opacity .15s;text-align:center}.end-btn-n:hover{opacity:.88}
+.btn-outline-n{background:var(--surface);border:1px solid var(--border);color:var(--text2)}.btn-solid-n{background:var(--text);color:#fff}
+@media(min-width:600px){.topbar-inner,.steps,.dots-wrap,.card-area,.see-nav-inner,.hero,.cards,.dd-section-label,.end-nav-inner{max-width:680px}.q-text{font-size:26px}.hero-title{font-size:38px}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LAYER 1 — PROTOCOL ══════════════ -->
+<div class="layer active" id="layer1">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span class="tb-topic">PPH</span>
+      <div class="tb-badge badge-red">EMERGENCY PROTOCOL</div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="steps">
+
+      <!-- STEP 1 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-red">1</div>
+          <div class="step-meta"><div class="step-timing timing-red">Identify immediately</div><div class="step-title">What is PPH — recognise it now</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="emerg-header-card">
+            <div class="emerg-tag">DEFINITION — PPH IS PRESENT IF ANY ONE OF THESE</div>
+            <div class="emerg-desc">
+              🔴 Blood loss ≥ 500 ml after vaginal delivery<br>
+              🔴 Blood loss ≥ 1000 ml after C-section<br>
+              🔴 Blood loss with signs of hypovolaemia — any amount<br>
+              🔴 Fall in haematocrit ≥ 10% from admission<br>
+              🔴 Requires blood transfusion
+            </div>
+          </div>
+          <div class="monitor-grid">
+            <div class="monitor-item" style="border-left:3px solid var(--red)"><div class="monitor-label">Primary PPH</div><div class="monitor-val" style="font-size:13px">Within 24h of delivery</div></div>
+            <div class="monitor-item" style="border-left:3px solid var(--amber)"><div class="monitor-label">Secondary PPH</div><div class="monitor-val" style="font-size:13px">&gt;24h to 12 weeks after delivery</div></div>
+          </div>
+          <div class="section-title">Causes — remember 4 Ts</div>
+          <div class="monitor-grid" style="grid-template-columns:1fr 1fr">
+            <div class="monitor-item" style="border-left:3px solid var(--red)"><div class="monitor-label">Tone (MC overall)</div><div class="monitor-val" style="font-size:12px">Atonic uterus — uterus not contracting</div></div>
+            <div class="monitor-item" style="border-left:3px solid var(--amber)"><div class="monitor-label">Trauma</div><div class="monitor-val" style="font-size:12px">Perineal/cervical tear · hematoma · rupture</div></div>
+            <div class="monitor-item" style="border-left:3px solid var(--blue)"><div class="monitor-label">Thrombin</div><div class="monitor-val" style="font-size:12px">Bleeding disorders · coagulopathy</div></div>
+            <div class="monitor-item" style="border-left:3px solid var(--green)"><div class="monitor-label">Tissue (MC 2° PPH)</div><div class="monitor-val" style="font-size:12px">Retained placental tissue</div></div>
+          </div>
+          <div class="img-badge badge-clinical" style="margin-top:12px">ATONIC vs NORMAL UTERUS</div>
+          <div class="clin-img-wrap"><img class="clin-img" style="max-height:200px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/atonic_uterus.png" alt="Atonic uterus" onerror="this.style.background='#ddd'"></div>
+          <p class="clin-caption">Top: Contracted uterus — vessels compressed, bleeding stopped. Bottom: Atonic uterus — open vessels, blood pours out. This is the most common cause of PPH.</p>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-red">2</div>
+          <div class="step-meta"><div class="step-timing timing-red">0–5 min · Simultaneous</div><div class="step-title">Resuscitate immediately</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">2 large bore IV cannulas — 16G or larger, both arms</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Inj. Ringer's Lactate or NS 1000 ml IV fast — wide open</div><div class="action-sub">Target SBP ≥ 90 mmHg · Avoid glucose solutions</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Blood samples: ABO/Rh grouping · CBC · BT · CT · PT/APTT · cross-match</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Arrange blood — 2 units packed cells minimum</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">O₂ by face mask 6–8 L/min</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Insert Foley catheter — monitor urine output hourly</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">BP · Pulse · RR · SpO₂ every 5 min in active bleed</div></div></div>
+          </div>
+          <div class="section-title">Shock Index (SI) = Heart Rate ÷ Systolic BP</div>
+          <div class="monitor-grid" style="grid-template-columns:1fr 1fr 1fr;gap:6px">
+            <div class="monitor-item" style="background:var(--green-bg);border:1px solid var(--green-bd);text-align:center"><div class="monitor-label" style="color:var(--green)">SI 0.5–0.7</div><div class="monitor-val" style="color:var(--green);font-size:13px">Normal</div></div>
+            <div class="monitor-item" style="background:var(--amber-bg);border:1px solid var(--amber-bd);text-align:center"><div class="monitor-label" style="color:var(--amber)">SI 0.7–0.9</div><div class="monitor-val" style="color:var(--amber);font-size:13px">Mild shock</div></div>
+            <div class="monitor-item" style="background:var(--red-bg);border:1px solid var(--red-bd);text-align:center"><div class="monitor-label" style="color:var(--red)">SI ≥ 0.9</div><div class="monitor-val" style="color:var(--red);font-size:13px">Transfuse now</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-red">3</div>
+          <div class="step-meta"><div class="step-timing timing-red">Simultaneously with Step 2</div><div class="step-title">Uterine massage + find cause</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="section-title">Bimanual uterine compression — do immediately</div>
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">One hand inside vagina (anterior fornix) · one hand on abdomen</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Compress uterus between both hands · continue until uterus contracts</div></div></div>
+          </div>
+          <div class="img-badge badge-clinical" style="margin-top:10px">BIMANUAL COMPRESSION</div>
+          <div class="clin-grid">
+            <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/bimanual.jpg" alt="Bimanual compression" onerror="this.style.background='#ddd'"><div class="clin-grid-label">Internal bimanual compression</div></div>
+            <div class="clin-grid-item"><img src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/bimanual_external.png" alt="External compression" onerror="this.style.background='#ddd'"><div class="clin-grid-label">External fundal massage</div></div>
+          </div>
+          <div class="section-title">Is the uterus contracted?</div>
+          <div class="monitor-grid">
+            <div class="monitor-item" style="border-left:3px solid var(--green)"><div class="monitor-label">Uterus well contracted</div><div class="monitor-val" style="font-size:12px;line-height:1.6">Rules out atonic PPH → Think Trauma or Tissue</div></div>
+            <div class="monitor-item" style="border-left:3px solid var(--red)"><div class="monitor-label">Uterus soft + boggy</div><div class="monitor-val" style="font-size:12px;line-height:1.6">Atonic PPH → go to Step 4 now</div></div>
+          </div>
+          <div class="section-title">PV examination — do in both cases</div>
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Check for perineal/cervical tears — repair immediately</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Check placenta is complete — any retained parts → manual removal</div></div></div>
+          </div>
+          <div class="img-badge badge-clinical" style="margin-top:10px">RETAINED PLACENTA</div>
+          <div class="clin-img-wrap"><img class="clin-img" style="max-height:180px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/retained_placenta.png" alt="Retained placenta" onerror="this.style.background='#ddd'"></div>
+          <p class="clin-caption">Left: Empty uterus — normal. Right: Retained placental tissue — uterus cannot contract fully → continued bleeding.</p>
+        </div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-red">4</div>
+          <div class="step-meta"><div class="step-timing timing-red">Atonic PPH confirmed</div><div class="step-title">Uterotonic drugs — step ladder</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="note-box" style="margin-bottom:10px">Give all THREE simultaneously: Bimanual massage + Inj. Tranexamic Acid + Uterotonic drug</div>
+          <div class="section-title">Step 1 — First line (WHO first choice)</div>
+          <div class="drug-item">
+            <div class="drug-name">Inj. Oxytocin</div>
+            <div class="drug-dose">20–40 IU in 500 ml RL/NS IV infusion<br>IM: 10 IU if no IV access</div>
+            <div class="drug-ci">Never IV bolus — causes hypotension, arrhythmia, cardiac arrest<br>Never in 5% dextrose — causes water intoxication</div>
+          </div>
+          <div class="section-title">Step 2 — Add if oxytocin fails</div>
+          <div class="drug-item">
+            <div class="drug-name">Inj. Methylergometrine 0.2 mg IM</div>
+            <div class="drug-dose">Repeat every 2–4h · Never IV (sudden BP spike)</div>
+            <div class="drug-ci">CI: Hypertension · Pre-eclampsia · Heart disease · After delivery of first twin · Rh-ve pregnancy</div>
+          </div>
+          <div class="section-title">Step 3 — Add simultaneously (add-on drug)</div>
+          <div class="drug-item">
+            <div class="drug-name">Tab. Misoprostol 800 mcg sublingual</div>
+            <div class="drug-dose">WHO: 800 mcg SL · ACOG: 600–1000 mcg SL/oral/PR</div>
+            <div class="drug-ci">CI: Scarred uterus (previous rupture) · Safe in asthma patients</div>
+          </div>
+          <div class="section-title">Step 4 — Gold standard if above fail</div>
+          <div class="drug-item">
+            <div class="drug-name">Inj. Carboprost (PGF₂α) 250 mcg IM</div>
+            <div class="drug-dose">Every 15–90 min · Maximum 8 doses (2 mg total)</div>
+            <div class="drug-ci">CI: Asthma · Pulmonary hypertension · Suspected amniotic fluid embolism</div>
+          </div>
+          <div class="section-title">Tranexamic acid — give with all above</div>
+          <div class="drug-item">
+            <div class="drug-name">Inj. Tranexamic Acid 1g IV</div>
+            <div class="drug-dose">In 100 ml NS over 20 min · Give within 3h of onset of PPH<br>Repeat 1g if bleeding persists ≥ 30 min OR reappears within 24h</div>
+            <div class="drug-ci">Fast IV rate causes hypotension</div>
+          </div>
+          <div class="fallback-box">
+            <div class="fallback-tag">SYNTOMETRINE (if available)</div>
+            <div class="fallback-row">Fixed combination: 5 IU Oxytocin + 0.5 mg Methylergometrine · Expensive · Not first line</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-amber">5</div>
+          <div class="step-meta"><div class="step-timing timing-amber">If unresponsive to drugs &gt;30 min</div><div class="step-title">Balloon tamponade — resource cascade</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="note-box" style="margin-bottom:10px">Continue uterotonics while inserting balloon. Principle: warm NS fills cavity → pressure on venous sinuses → bleeding stops.</div>
+
+          <div class="section-title">Option A — Bakri balloon (if available)</div>
+          <div class="drug-item">
+            <div class="drug-name">Bakri Balloon Catheter</div>
+            <div class="drug-dose">Fill with warm NS up to 500 ml (max capacity)<br>Remove after 12–24h if bleeding controlled</div>
+          </div>
+          <div class="img-badge badge-clinical">BAKRI BALLOON SYSTEM</div>
+          <div class="clin-img-wrap"><img class="clin-img" style="max-height:180px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/bakri.jpg" alt="Bakri balloon" onerror="this.style.background='#ddd'"></div>
+          <p class="clin-caption">Bakri balloon fills uterine cavity with NS — mechanical pressure stops venous sinus bleeding. Uterine balloon inflated inside, vaginal balloon controls cervical oozing.</p>
+
+          <div class="section-title">Option B — Condom catheter (PHC/CHC — ₹20, always available)</div>
+          <div class="drug-item">
+            <div class="drug-name">CG Balloon — Foley No. 20 + condom</div>
+            <div class="drug-dose">Same principle as Bakri · 96% success rate in Indian studies</div>
+          </div>
+          <div class="img-badge badge-clinical">HOW TO MAKE CONDOM CATHETER</div>
+          <div class="clin-img-wrap"><img class="clin-img" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/condom_cath.png" alt="Condom catheter preparation" onerror="this.style.background='#ddd'"></div>
+          <p class="clin-caption">(a) Cut 2 rings from Foley drainage tube (b) Inflate Foley bulb with 2–5 ml air, excise (c) Roll condom over catheter (d) Tie condom twice with rings, 1.5–2 cm on each end (e) Excise tip of Foley with blind end of condom 0.5 cm from tied ring</p>
+          <div class="actions" style="margin-top:8px">
+            <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Insert assembled device into uterus</div></div></div>
+            <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Fill with NS using 50 ml syringe — stop at 300 ml or when bleeding stops</div><div class="action-sub">Maximum 500 ml · Clamp catheter · Pack vagina loosely with gauze</div></div></div>
+            <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">Leave indwelling Foley catheter in bladder while condom catheter is in place</div></div></div>
+            <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Remove after 12–24h if bleeding controlled</div></div></div>
+          </div>
+
+          <div class="section-title">Option C — Nothing available → manual methods</div>
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Bimanual compression — sustained, continuous, by doctor until transfer</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Aortic compression — fist on aorta at umbilicus level · check absent femoral pulse to confirm</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">MAST suit (Military Anti-Shock Trousers) if available</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">TRANSFER NOW — do not delay for surgical option</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-red">6</div>
+          <div class="step-meta"><div class="step-timing timing-red">Surgical — district/tertiary</div><div class="step-title">Surgical management — step ladder</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="section-title">Step 1 — Compression sutures</div>
+          <div class="drug-item">
+            <div class="drug-name">B-Lynch suture (most common)</div>
+            <div class="drug-dose">Brace suture compresses uterus front to back · Uterus-sparing · Fertility preserved</div>
+          </div>
+          <div class="img-badge badge-clinical">B-LYNCH COMPRESSION SUTURE</div>
+          <div class="clin-img-wrap"><img class="clin-img" style="max-height:220px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/b_lynch.png" alt="B-Lynch suture" onerror="this.style.background='#ddd'"></div>
+          <p class="clin-caption">B-Lynch suture — compression brace squeezes uterus. Also: Hayman · Cho square · Perriera · Gunshella sutures.</p>
+
+          <div class="section-title">Step 2 — Devascularisation (if compression fails)</div>
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">U/L uterine artery ligation (O'Leary stitch) → B/L uterine artery ligation</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">B/L anastomotic branch of ovarian artery ligation</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Uterine artery embolization (UAE) if radiology available + vitals stable</div></div></div>
+          </div>
+          <div class="img-badge badge-clinical">O'LEARY STITCH — UTERINE ARTERY LIGATION</div>
+          <div class="clin-img-wrap"><img class="clin-img" style="max-height:200px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/oleary.png" alt="O'Leary technique" onerror="this.style.background='#ddd'"></div>
+          <p class="clin-caption">O'Leary stitch: B/L uterine artery ligation — 75% success rate. Needle enters myometrium 2–3 cm medial to uterine artery, exits lateral in avascular space of broad ligament.</p>
+
+          <div class="section-title">Step 3 — Last resort</div>
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Internal iliac artery ligation → Subtotal hysterectomy → Total hysterectomy</div></div></div>
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Pelvic pressure packs: Umbrella pack or Parachute pack</div></div></div>
+          </div>
+          <div class="note-box">Subtotal hysterectomy (cervix retained) is preferred — faster and less blood loss than total hysterectomy.</div>
+        </div>
+      </div>
+
+      <!-- STEP 7 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-amber">7</div>
+          <div class="step-meta"><div class="step-timing timing-amber">After 24h to 12 weeks</div><div class="step-title">Secondary PPH</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="section-title">Common causes</div>
+          <div class="monitor-grid" style="grid-template-columns:1fr 1fr">
+            <div class="monitor-item" style="border-left:3px solid var(--amber)"><div class="monitor-label">Most common</div><div class="monitor-val" style="font-size:12px;line-height:1.6">Retained placental tissue (Tissue)</div></div>
+            <div class="monitor-item" style="border-left:3px solid var(--red)"><div class="monitor-label">Infection</div><div class="monitor-val" style="font-size:12px;line-height:1.6">Endometritis · subinvolution of placental site</div></div>
+          </div>
+          <div class="section-title">Management</div>
+          <div class="actions">
+            <div class="action-row"><div class="action-dot dot-red"></div><div><div class="action-main">Resuscitate as Step 2</div></div></div>
+            <div class="action-row"><div class="action-dot dot-blue"></div><div><div class="action-main">USG uterus — look for retained products of conception (RPOC)</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">RPOC confirmed → Surgical Evacuation of Retained Products (ERPC)</div><div class="action-sub">⚠ Highest risk of Asherman syndrome in postpartum period</div></div></div>
+            <div class="action-row"><div class="action-dot dot-green"></div><div><div class="action-main">Antibiotics: Inj. Amoxyclav 1.2 g IV 8-hrly + Metronidazole 500 mg IV 8-hrly</div></div></div>
+            <div class="action-row"><div class="action-dot dot-amber"></div><div><div class="action-main">Inj. Oxytocin 20 IU in 500 ml RL over 4h to promote uterine involution</div></div></div>
+          </div>
+          <div class="fallback-box">
+            <div class="fallback-tag">⚠ ASHERMAN SYNDROME WARNING</div>
+            <div class="fallback-row">D&amp;C in postpartum period = highest risk for intrauterine adhesions (Asherman syndrome). Use suction evacuation or hysteroscopic removal wherever possible.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 8 -->
+      <div class="step-card">
+        <div class="step-trigger" onclick="togStep(this)">
+          <div class="step-num num-green">8</div>
+          <div class="step-meta"><div class="step-timing timing-green">Before transfer</div><div class="step-title">Transfer checklist</div></div>
+          <div class="step-arrow">&#8964;</div>
+        </div>
+        <div class="step-body">
+          <div class="checklist" id="chklist">
+            <div class="check-row" onclick="chk(0)"><div class="chk-box" id="ck0"></div><div><div class="chk-label">2 large bore IV lines secured</div></div></div>
+            <div class="check-row" onclick="chk(1)"><div class="chk-box" id="ck1"></div><div><div class="chk-label">IV fluids running · blood arranged</div></div></div>
+            <div class="check-row" onclick="chk(2)"><div class="chk-box" id="ck2"></div><div><div class="chk-label">Oxytocin infusion started</div></div></div>
+            <div class="check-row" onclick="chk(3)"><div class="chk-box" id="ck3"></div><div><div class="chk-label">Tranexamic acid given (within 3h)</div></div></div>
+            <div class="check-row" onclick="chk(4)"><div class="chk-box" id="ck4"></div><div><div class="chk-label">Foley catheter inserted · UO documented</div></div></div>
+            <div class="check-row" onclick="chk(5)"><div class="chk-box" id="ck5"></div><div><div class="chk-label">Condom/Bakri balloon inserted if atonic PPH</div></div></div>
+            <div class="check-row" onclick="chk(6)"><div class="chk-box" id="ck6"></div><div><div class="chk-label">Receiving facility called + blood bank alerted</div></div></div>
+          </div>
+          <div class="chk-progress" id="ck-prog">0 / 7 complete</div>
+        </div>
+      </div>
+
+    </div>
+    <div style="max-width:600px;margin:0 auto;padding:0 20px 4px">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--text3);line-height:1.8">
+        <div style="font-weight:700;color:var(--text2);margin-bottom:4px;font-size:12px">📚 References</div>
+        1. Dr. Sakshi Arora — Marrow Obstetrics v4.0, 2024 (Marrow 8.0)<br>
+        2. WHO Recommendations on Prevention and Treatment of PPH, 2023<br>
+        3. ACOG Practice Bulletin — Postpartum Hemorrhage, 2017 (reaffirmed 2021)<br>
+        4. FOGSI GCPR — Good Clinical Practice Recommendations on PPH, 2020<br>
+        5. Condom catheter evidence: PMC5016419 — Rajasthan tertiary centre study
+      </div>
+    </div>
+    <div class="version-tag">Drzix · PPH · v1.0 · For clinical education only</div>
+  </div>
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:0 20px 28px;background:linear-gradient(to bottom,transparent,var(--bg) 40%);z-index:49;pointer-events:none">
+    <div style="max-width:600px;margin:0 auto;pointer-events:all">
+      <button onclick="switchLayer(2)" style="width:100%;background:var(--purple);color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif">Understand the concept →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ LAYER 2 — SEE DECK ══════════════ -->
+<div class="layer" id="layer2">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button onclick="switchLayer(1)" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;padding:0">← Protocol</button>
+      <span class="tb-sep">·</span>
+      <span class="tb-topic">SEE</span>
+      <div class="tb-badge badge-purple">4 CONCEPTS</div>
+    </div>
+  </div>
+  <div class="page-content" id="see-content"></div>
+  <div class="see-nav" id="see-nav">
+    <div class="see-nav-inner">
+      <button class="see-btn btn-ghost" onclick="seeRestart()">Start over</button>
+      <button class="see-btn btn-dark" id="see-next-btn" onclick="seeNext()" disabled>Tap card first</button>
+    </div>
+  </div>
+  <div style="max-width:560px;margin:0 auto;padding:8px 20px 90px">
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--text3);line-height:1.8">
+      <div style="font-weight:700;color:var(--text2);margin-bottom:4px;font-size:12px">📚 References</div>
+      1. Dr. Sakshi Arora — Marrow Obstetrics v4.0, 2024<br>
+      2. WHO PPH Recommendations, 2023<br>
+      3. ACOG Practice Bulletin PPH, 2017
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ LAYER 3 — DIG DEEPER ══════════════ -->
+<div class="layer" id="layer3">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <button onclick="switchLayer(2)" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:'Outfit',sans-serif;padding:0">← SEE</button>
+      <span class="tb-sep">·</span>
+      <span class="tb-topic">Dig Deeper</span>
+      <div class="tb-badge badge-purple">20 CONCEPTS</div>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="hero">
+      <div class="hero-eyebrow">Obstetrics · Emergency</div>
+      <div class="hero-title">Postpartum Haemorrhage</div>
+      <div class="hero-def">Blood loss ≥ 500 ml after vaginal delivery (or ≥ 1000 ml after C-section) — the most common cause of maternal mortality in India.</div>
+      <div class="hero-story">
+        <div class="story-tag">REAL PATIENT</div>
+        <strong>Savitaben. 28 years old. 4th delivery. Village PHC. 2 AM.</strong><br><br>
+        Delivered normally. Placenta delivered. Suddenly — continuous bright red bleed. Soaks 3 pads in 10 minutes. Uterus feels like a soft bag of water. No tone. Relatives shouting.<br><br>
+        <strong>Every concept below explains what is happening inside Savitaben right now — why the uterus is not contracting, which drug to give first, and why the condom catheter you make in 5 minutes at PHC can save her life when Bakri balloon is 90 km away.</strong>
+      </div>
+    </div>
+    <div class="dd-section-label">20 concepts — tap any to expand</div>
+    <div class="cards" id="dd-cards"></div>
+    <div class="cards" style="padding-bottom:0;margin-top:-100px">
+      <div class="cc" id="ddc_ref"><div class="cc-trigger" onclick="togDD('ref')"><div class="cc-num" style="font-size:11px">REF</div><div class="cc-text"><div class="cc-q">Sources — where this content comes from</div><div class="cc-hint">Marrow 8.0 · WHO 2023 · ACOG · FOGSI · Evidence for condom catheter</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px">
+        <div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Primary Teaching Reference</div><p><strong>Dr. Sakshi Arora — Obstetrics &amp; Gynaecology, Marrow 8.0, v4.0, 2024.</strong> Source for definitions, 4 Ts classification, uterotonic drug pharmacology, and surgical management ladder.</p></div>
+        <div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">International Guideline</div><p><strong>WHO Recommendations on Prevention and Treatment of PPH, 2023.</strong> Source for oxytocin as first-line, tranexamic acid timing, treatment bundle concept, and misoprostol distribution in rural areas.</p></div>
+        <div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">National Guideline</div><p><strong>ACOG Practice Bulletin No. 183 — Postpartum Hemorrhage, 2017 (reaffirmed 2021).</strong> Source for ACOG definition (≥1000 ml any delivery), FFP dosing, and massive transfusion protocol.</p></div>
+        <div class="pearl" style="margin-bottom:10px"><div class="pearl-tag">Indian Guideline</div><p><strong>FOGSI GCPR — Good Clinical Practice Recommendations on PPH, 2020.</strong> Source for Indian context management, condom catheter use at secondary level facilities.</p></div>
+        <div class="pearl"><div class="pearl-tag">Condom Catheter Evidence</div><p><strong>Condom catheter study from Rajasthan (PMC5016419) — 96% success rate in Indian tertiary centre.</strong> Also: WHO-supported stepped wedge RCT across Uganda, Egypt, Senegal (PMC6899652) confirming efficacy of condom-catheter UBT at secondary level hospitals.</p></div>
+        <div class="note-box" style="margin-top:10px">This module is for clinical education only. Always follow your institution's current protocols. Guidelines evolve — verify doses before clinical use.</div>
+      </div></div>
+    </div>
+    <div class="end-nav">
+      <div class="end-nav-inner">
+        <button class="end-btn-n btn-outline-n" onclick="switchLayer(2)">← SEE deck</button>
+        <button class="end-btn-n btn-solid-n" onclick="switchLayer(1)">← Protocol</button>
+      </div>
+    </div>
+    <div class="version-tag">Drzix · PPH · Dig Deeper · For clinical education only</div>
+  </div>
+</div>
+<script>
+const GH='https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph';
+
+/* ── LAYER SWITCHER ── */
+function switchLayer(n){
+  document.querySelectorAll('.layer').forEach(l=>l.classList.remove('active'));
+  document.getElementById('layer'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2&&!seeInitialised)initSee();
+  if(n===3&&!ddInitialised)initDD();
+}
+
+/* ── LAYER 1 ── */
+function togStep(t){t.closest('.step-card').classList.toggle('open');}
+const checks=Array(7).fill(false);
+const SVG_CHK='<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l4 4 6-8" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function chk(i){checks[i]=!checks[i];const b=document.getElementById('ck'+i);b.classList.toggle('checked',checks[i]);b.innerHTML=checks[i]?SVG_CHK:'';document.getElementById('ck-prog').textContent=checks.filter(Boolean).length+' / 7 complete';}
+
+/* ── LAYER 2 — SEE DECK ── */
+let seeInitialised=false,seeCur=0,seeRevealed=false;
+const SEE_CARDS=[
+  {
+    q:"Savitaben's uterus is soft and boggy — not contracting. Why does this cause massive bleeding? The baby is out.",
+    caption:"The uterus is the only organ that can stop its own haemorrhage. When it fails — the patient bleeds at 500 ml/min. Understanding why is the key to choosing the right treatment.",
+    flow:[
+      {box:"During pregnancy: uterine blood flow = 500 ml/min",c:"f-gray"},
+      {arr:"↓ after delivery: placenta separates"},
+      {box:"Living ligature — muscle fibres contract → compress blood vessels",c:"f-grn"},
+      {arr:"↓ bleeding stops naturally"},
+      {box:"ATONIC UTERUS — muscle fibres do not contract",c:"f-red"},
+      {arr:"↓ no compression of vessels"},
+      {box:"500 ml/min bleeding continues → shock in minutes",c:"f-red"},
+      {arr:"↓ treatment"},
+      {box:"Uterotonic drug → forces muscle to contract → living ligature restored",c:"f-grn"}
+    ]
+  },
+  {
+    q:"Same blood loss, different cause. Which of the 4 Ts is bleeding from — and why does it matter for treatment?",
+    caption:"Giving oxytocin to a patient bleeding from a cervical tear does nothing. Getting the cause right in the first 2 minutes saves the life.",
+    flow:[
+      {box:"PPH — 4 Ts cause four completely different problems",c:"f-gray"},
+      {arr:"↓"},
+      {row:[{box:"TONE\nAtonic uterus\n→ Uterotonics",c:"f-red"},{box:"TRAUMA\nTear/rupture\n→ Surgical repair",c:"f-amb"},{box:"TISSUE\nRetained placenta\n→ Manual removal",c:"f-blu"},{box:"THROMBIN\nCoagulopathy\n→ FFP/blood",c:"f-pur"}]},
+      {arr:"↓ how to differentiate"},
+      {box:"Uterus well contracted → NOT Tone → examine for Trauma or Tissue",c:"f-amb"},
+      {box:"Uterus soft + boggy → Tone → uterotonics now",c:"f-red"}
+    ]
+  },
+  {
+    q:"Oxytocin is the first drug. Then what? And why does the order of uterotonic drugs matter?",
+    caption:"Each drug targets the uterus differently. Use them in order — not all at once. Carboprost is the gold standard but comes last because it's the nuclear option with the most contraindications.",
+    flow:[
+      {box:"Bleeding confirmed → start all THREE together:",c:"f-gray"},
+      {arr:"↓"},
+      {row:[{box:"Bimanual massage",c:"f-blu"},{box:"Inj. TXA 1g IV",c:"f-blu"},{box:"Oxytocin IV",c:"f-grn"}]},
+      {arr:"↓ if unresponsive"},
+      {box:"+ Methylergometrine 0.2 mg IM (not in hypertension)",c:"f-amb"},
+      {arr:"↓ if still unresponsive"},
+      {box:"+ Misoprostol 800 mcg SL (add-on drug)",c:"f-amb"},
+      {arr:"↓ if still unresponsive"},
+      {box:"Carboprost 250 mcg IM — gold standard, max 8 doses",c:"f-red"},
+      {arr:"↓ CI: asthma · pulmonary hypertension"},
+      {box:"> 30 min unresponsive → balloon tamponade",c:"f-red"}
+    ]
+  },
+  {
+    q:"It is 3 AM. Bakri balloon is not available. Condom catheter — how does it work and why does it actually stop bleeding?",
+    caption:"Same principle as a ₹15,000 Bakri balloon — in a ₹20 device. This is not a jugaad. WHO-supported RCT evidence. 96% success rate in Indian tertiary centres.",
+    flow:[
+      {box:"Mechanical tamponade principle:",c:"f-gray"},
+      {arr:"↓"},
+      {box:"Balloon filled with warm NS inside uterine cavity",c:"f-blu"},
+      {arr:"↓ pressure on venous sinuses"},
+      {box:"Exceeds venous pressure → bleeding stops",c:"f-grn"},
+      {arr:"↓ condom catheter assembly"},
+      {row:[{box:"Foley No.20\n+ condom",c:"f-gray"},{box:"Tie with rings\n2 sites",c:"f-gray"},{box:"Cut tip\nof Foley",c:"f-gray"}]},
+      {arr:"↓ insert → fill 300–500 ml NS → pack vagina"},
+      {box:"Bleeding controlled → remove at 12–24h",c:"f-grn"}
+    ]
+  }
+];
+
+function buildFlow(flow){return flow.map(s=>{if(s.arr)return'<div class="f-arr">'+s.arr+'</div>';if(s.row)return'<div class="f-row">'+s.row.map(b=>'<div class="f-box '+b.c+'">'+b.box+'</div>').join('')+'</div>';return'<div class="f-box '+s.c+'">'+s.box+'</div>';}).join('');}
+function initSee(){seeInitialised=true;seeCur=0;renderSee();}
+function renderSee(){seeRevealed=false;const c=SEE_CARDS[seeCur];const isLast=seeCur===SEE_CARDS.length-1;const dots=SEE_CARDS.map((_,i)=>'<div class="sdot '+(i<seeCur?'seen':i===seeCur?'active':'')+'"></div>').join('');document.getElementById('see-content').innerHTML='<div class="dots-wrap">'+dots+'<span class="dots-label">'+(seeCur+1)+' of '+SEE_CARDS.length+'</span></div><div class="card-area"><div class="q-number">Concept '+(seeCur+1)+'</div><div class="q-text">'+c.q+'</div><div class="tap-card" id="stc" onclick="seeReveal()"><div class="tap-hint" id="sth"><div class="tap-icon">👁</div><div class="tap-label">Tap to reveal</div></div><div class="see-answer" id="sans"><div class="flow">'+buildFlow(c.flow)+'</div><div class="caption">'+c.caption+'</div></div></div></div>';const nb=document.getElementById('see-next-btn');nb.disabled=true;nb.textContent='Tap card first';nb.className='see-btn btn-dark';document.getElementById('see-nav').style.display='block';}
+function seeReveal(){if(seeRevealed)return;seeRevealed=true;document.getElementById('stc').classList.add('revealed');const th=document.getElementById('sth');th.style.opacity='0';th.style.pointerEvents='none';setTimeout(()=>{th.style.display='none';const ans=document.getElementById('sans');ans.style.display='flex';requestAnimationFrame(()=>requestAnimationFrame(()=>ans.classList.add('show')));},160);const nb=document.getElementById('see-next-btn');nb.disabled=false;const isLast=seeCur===SEE_CARDS.length-1;nb.textContent=isLast?'Dig Deeper →':'Next →';nb.className=isLast?'see-btn btn-green':'see-btn btn-dark';}
+function seeNext(){if(!seeRevealed)return;if(seeCur<SEE_CARDS.length-1){seeCur++;renderSee();}else{showSeeEnd();}}
+function seeRestart(){seeCur=0;renderSee();}
+function showSeeEnd(){document.getElementById('see-content').innerHTML='<div class="end-wrap"><div class="end-tick">✓</div><div class="end-title">You\'ve seen it.</div><div class="end-sub">4 core mechanisms. Now go deeper — understand the pharmacology, surgical anatomy, and the evidence behind each decision.</div><div class="end-btns-v"><button class="end-btn-v btn-green" onclick="switchLayer(3)">Dig Deeper →</button><button class="end-btn-v" style="background:var(--surface);border:1px solid var(--border);color:var(--text2)" onclick="seeRestart()">Start over</button></div></div>';document.getElementById('see-nav').style.display='none';}
+
+/* ── LAYER 3 — DIG DEEPER ── */
+let ddInitialised=false;
+function togDD(n){const el=document.getElementById('ddc'+n);if(el)el.classList.toggle('open');}
+function initDD(){ddInitialised=true;document.getElementById('dd-cards').innerHTML=getDDCards();}
+function getDDCards(){return`
+  <div class="cc" id="ddc1"><div class="cc-trigger" onclick="togDD(1)"><div class="cc-num">1</div><div class="cc-text"><div class="cc-q">What is PPH — definitions, why they differ, and which one to use clinically</div><div class="cc-hint">500ml · 1000ml · ACOG · WHO · clinical definition</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Post-partum haemorrhage — blood loss after delivery</div><div class="f-arr">↓ three different definitions exist</div><div class="f-row"><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-blu" style="font-size:12px;width:100%">Traditional</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.8;padding:4px">≥500 ml after vaginal delivery<br>≥1000 ml after C-section</div></div><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-amb" style="font-size:12px;width:100%">ACOG 2017</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.8;padding:4px">≥1000 ml any delivery<br>or signs of hypovolaemia</div></div><div style="flex:1;min-width:130px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:12px;width:100%">Clinical</div><div style="font-size:12px;color:var(--text2);text-align:center;line-height:1.8;padding:4px">Requires transfusion<br>Haematocrit drop ≥10%<br>Signs of hypovolaemia</div></div></div><div class="f-arr">↓ Severe PPH (WHO)</div><div class="f-box f-red">Blood loss ≥ 1000 ml = Severe PPH regardless of route of delivery</div></div><p class="cc-explain"><strong>In practice, do not wait to measure 500 ml.</strong> Any woman who is pale, tachycardic, hypotensive after delivery is in PPH until proved otherwise. Measuring blood loss visually underestimates actual loss by 30–50%.</p><div class="pearl"><div class="pearl-tag">NEET PG point</div><p>MC cause of maternal mortality in India = PPH. Primary PPH = within 24h. Secondary PPH = 24h to 12 weeks. MC cause of primary PPH = Tone (atonic uterus). MC cause of secondary PPH = Tissue (retained placenta).</p></div></div></div>
+
+  <div class="cc" id="ddc2"><div class="cc-trigger" onclick="togDD(2)"><div class="cc-num">2</div><div class="cc-text"><div class="cc-q">The living ligature — why the uterus is the only organ that stops its own bleeding</div><div class="cc-hint">Middle layer myometrium · muscle fibres · compress vessels · atonic = no compression</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Uterine wall = 3 layers of muscle — middle layer is oblique</div><div class="f-arr">↓ blood vessels run between these fibres</div><div class="f-box f-blu">On contraction: muscle fibres shorten → compress blood vessels running between them</div><div class="f-arr">↓ called "Living ligature"</div><div class="f-box f-grn">No ligature tied — uterus ties itself</div><div class="f-arr">↓ atonic uterus</div><div class="f-box f-red">No contraction → no compression → vessels open → 500 ml/min bleeding</div></div><p class="cc-explain"><strong>This is why all uterotonic drugs work the same way</strong> — they all cause uterine contraction, which activates the living ligature. The difference between drugs is where they act (receptor), how long they work, and what their contraindications are.</p><div class="pearl"><div class="pearl-tag">Best prevention</div><p>Active Management of Third Stage of Labour (AMTSL) = Oxytocin 10 IU IM within 1 min of delivery + controlled cord traction + uterine massage. This is the single most effective intervention to prevent PPH — reduces PPH incidence by 60%.</p></div></div></div>
+
+  <div class="cc" id="ddc3"><div class="cc-trigger" onclick="togDD(3)"><div class="cc-num">3</div><div class="cc-text"><div class="cc-q">4 Ts — which T causes what, how to identify, and what treatment each needs</div><div class="cc-hint">Tone · Trauma · Thrombin · Tissue · differential · treatment per cause</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body">
+  <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:12px 0;font-size:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:var(--surface2);border-bottom:1px solid var(--border)"><div style="padding:8px;font-weight:700;color:var(--text3)">T</div><div style="padding:8px;font-weight:700;color:var(--text3)">Cause</div><div style="padding:8px;font-weight:700;color:var(--text3)">How to identify</div><div style="padding:8px;font-weight:700;color:var(--text3)">Treatment</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px;font-weight:700;color:var(--red)">Tone</div><div style="padding:8px;color:var(--text2)">Atonic uterus (MC)</div><div style="padding:8px;color:var(--text2)">Soft boggy uterus on exam</div><div style="padding:8px;color:var(--text2)">Uterotonics + massage</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px;font-weight:700;color:var(--amber)">Trauma</div><div style="padding:8px;color:var(--text2)">Tear · haematoma · rupture</div><div style="padding:8px;color:var(--text2)">Uterus contracted, bleeding continues</div><div style="padding:8px;color:var(--text2)">Surgical repair</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border)"><div style="padding:8px;font-weight:700;color:var(--blue)">Thrombin</div><div style="padding:8px;color:var(--text2)">Coagulopathy · DIC</div><div style="padding:8px;color:var(--text2)">Oozing from IV sites · no clot</div><div style="padding:8px;color:var(--text2)">FFP · platelets · cryoprecipitate</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr"><div style="padding:8px;font-weight:700;color:var(--purple)">Tissue</div><div style="padding:8px;color:var(--text2)">Retained placenta/parts (MC 2° PPH)</div><div style="padding:8px;color:var(--text2)">Incomplete placenta on examination</div><div style="padding:8px;color:var(--text2)">Manual removal / ERPC</div></div>
+  </div>
+  <p class="cc-explain"><strong>Uterus well contracted + continued bleeding = Trauma or Tissue, never Tone.</strong> This is the most important clinical decision point. Giving oxytocin to a patient bleeding from a cervical tear wastes time and does nothing.</p></div></div>
+
+  <div class="cc" id="ddc4"><div class="cc-trigger" onclick="togDD(4)"><div class="cc-num">4</div><div class="cc-text"><div class="cc-q">Risk factors — who is most likely to bleed after delivery?</div><div class="cc-hint">Maternal · placental · uterine · intrapartum factors</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-row"><div style="flex:1;min-width:120px"><div class="f-box f-red" style="font-size:12px;margin-bottom:6px">Maternal</div><div style="font-size:12px;color:var(--text2);line-height:1.8;padding:4px">Previous PPH<br>Multigravida (↑parity)<br>Obese<br>Anaemia<br>PIH in current pregnancy</div></div><div style="flex:1;min-width:120px"><div class="f-box f-amb" style="font-size:12px;margin-bottom:6px">Placental</div><div style="font-size:12px;color:var(--text2);line-height:1.8;padding:4px">Placenta previa<br>Abruption<br>Placenta accreta spectrum (PAS)<br>Chorioamnionitis</div></div><div style="flex:1;min-width:120px"><div class="f-box f-blu" style="font-size:12px;margin-bottom:6px">Uterine</div><div style="font-size:12px;color:var(--text2);line-height:1.8;padding:4px">Twin pregnancy<br>Polyhydramnios<br>Macrosomia<br>Fibroid uterus</div></div><div style="flex:1;min-width:120px"><div class="f-box f-pur" style="font-size:12px;margin-bottom:6px">Intrapartum</div><div style="font-size:12px;color:var(--text2);line-height:1.8;padding:4px">Prolonged labour<br>Precipitate labour &lt;3h<br>Instrumental delivery<br>Oxytocin overuse</div></div></div></div><div class="pearl"><div class="pearl-tag">Traumatic PPH risk factors</div><p>Instrumental delivery · Breech extraction · Obstructed labour · Tachysystole (&gt;5 contractions/10 min) · Multiparity + advanced maternal age.</p></div></div></div>
+
+  <div class="cc" id="ddc5"><div class="cc-trigger" onclick="togDD(5)"><div class="cc-num">5</div><div class="cc-text"><div class="cc-q">Oxytocin — first line drug. How does it work, why no IV bolus, and how is it stored?</div><div class="cc-hint">Nonapeptide · posterior pituitary · dose · IV bolus danger · dextrose contraindication</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Oxytocin = nonapeptide from paraventricular nucleus of hypothalamus → stored in posterior pituitary → pulsatile release</div><div class="f-arr">↓ mechanism</div><div class="f-row"><div class="f-box f-blu" style="font-size:13px">↑ intracellular calcium</div><div class="f-box f-blu" style="font-size:13px">↑ PGF-2α from decidua</div></div><div class="f-arr">↓ uterine contraction (physiological, regular intervals)</div><div class="f-row"><div class="f-box f-grn" style="font-size:13px">IM: onset 3 min<br>Duration 1h</div><div class="f-box f-amb" style="font-size:13px">T½: 3–5 min</div></div></div><p class="cc-explain"><strong>Why no IV bolus?</strong> Rapid IV oxytocin causes sudden vasodilation → hypotension → reflex tachycardia → arrhythmias → myocardial infarction → cardiac arrest. Always give as infusion diluted in NS or RL. <strong>Never in 5% dextrose</strong> — antidiuretic effect causes water intoxication (hyponatraemia, seizures, coma).</p><div class="pearl"><div class="pearl-tag">Natural vs Synthetic</div><p>Natural oxytocin = nonapeptide. Synthetic oxytocin = octapeptide (one amino acid different). Stored 2–8°C. Causes after-pains and milk ejection. Carbetocin is used in AMTSL but NOT for management of established PPH.</p></div></div></div>
+
+  <div class="cc" id="ddc6"><div class="cc-trigger" onclick="togDD(6)"><div class="cc-num">6</div><div class="cc-text"><div class="cc-q">Methylergometrine — why it causes tetanic contractions, and all its contraindications</div><div class="cc-hint">Tetanic · not first line · brown vials · hypertension CI · retained placenta risk</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Methylergometrine — ergot alkaloid</div><div class="f-arr">↓ effect</div><div class="f-box f-red">Tetanic (continuous) uterine contractions — not physiological intervals</div><div class="f-arr">↓ problem</div><div class="f-box f-amb">Cannot be used during pregnancy — sustained contraction can trap fetus</div><div class="f-arr">↓ risk of retained placenta</div><div class="f-box f-amb">Not first-line drug in AMTSL — can cause placenta to be retained if given before delivery</div></div><p class="cc-explain">Dose: 0.2 mg IM, repeat in 2–4h. <strong>Never IV — causes sudden severe BP spike.</strong> Brown vials due to photosensitivity. Side effect: hypertension.</p><div class="danger"><div class="danger-tag">Contraindications</div><p>After delivery of first twin (second twin still inside) · Heart diseases · Peripheral vascular diseases · Pre-eclampsia / HELLP · Rh-negative pregnancy · HIV patients on protease inhibitors (relative).</p></div></div></div>
+
+  <div class="cc" id="ddc7"><div class="cc-trigger" onclick="togDD(7)"><div class="cc-num">7</div><div class="cc-text"><div class="cc-q">Misoprostol — the only uterotonic in tablet form. Why is it special for rural India?</div><div class="cc-hint">PGE₁ · sublingual · WHO rural distribution · scarred uterus CI · asthma safe</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Misoprostol = PGE₁ analogue — only uterotonic available as oral tablet</div><div class="f-arr">↓ WHY it matters for rural India</div><div class="f-box f-grn">WHO recommends distributing tablet to pregnant women in antenatal period in rural areas to prevent PPH</div><div class="f-arr">↓ dose for PPH treatment</div><div class="f-row"><div class="f-box f-blu" style="font-size:13px">WHO: 800 mcg SL</div><div class="f-box f-amb" style="font-size:13px">ACOG: 600–1000 mcg SL/oral/PR</div></div><div class="f-arr">↓ avoid PV route in active PPH — gets washed away</div></div><p class="cc-explain"><strong>Safe in asthma</strong> — unlike carboprost (PGF₂α), misoprostol does not cause bronchospasm. <strong>Safe in hypertension</strong> — unlike methylergometrine.</p><div class="danger"><div class="danger-tag">Contraindication</div><p>Scarred uterus (previous CS or uterine rupture) — most common drug causing uterine rupture.</p></div><div class="pearl" style="margin-top:8px"><div class="pearl-tag">Side effects</div><p>Hyperthermia + shivering (most common and distinctive) · Nausea · Vomiting.</p></div></div></div>
+
+  <div class="cc" id="ddc8"><div class="cc-trigger" onclick="togDD(8)"><div class="cc-num">8</div><div class="cc-text"><div class="cc-q">Carboprost — gold standard for PPH. When to use and when it will kill the patient</div><div class="cc-hint">PGF₂α · 250 mcg IM · max 8 doses · asthma kills · diarrhoea</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Carboprost = PGF₂α (15-methyl PGF₂α) — most potent uterotonic</div><div class="f-arr">↓ dose</div><div class="f-box f-blu">250 mcg IM every 15–90 min · Maximum 8 doses (2 mg total)</div><div class="f-arr">↓ why it is gold standard</div><div class="f-box f-grn">Most potent · works when all others fail · used as last medical resort before surgery</div></div><p class="cc-explain">Side effect: Diarrhoea (distinctive — exam favourite). <strong>Dinoprostone (PGE₂) can be used off-label as PV/PR suppository 20 mcg — not recommended by WHO.</strong></p><div class="danger"><div class="danger-tag">Contraindications — absolute</div><p>Asthma — causes severe bronchospasm, can be fatal · Pulmonary hypertension · Suspected amniotic fluid embolism · PIH (relative).</p></div></div></div>
+
+  <div class="cc" id="ddc9"><div class="cc-trigger" onclick="togDD(9)"><div class="cc-num">9</div><div class="cc-text"><div class="cc-q">Tranexamic acid — why within 3 hours, and why the rate of infusion matters</div><div class="cc-hint">Antifibrinolytic · 1g within 3h · fast rate = hypotension · WOMAN trial</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">TXA = antifibrinolytic — blocks breakdown of fibrin clot</div><div class="f-arr">↓ mechanism</div><div class="f-box f-blu">Inhibits plasminogen activator → clot is NOT dissolved → bleeding slows</div><div class="f-arr">↓ timing is critical</div><div class="f-box f-grn">Given within 3h of PPH onset → 31% reduction in death from bleeding (WOMAN trial, 2017)</div><div class="f-arr">↓ after 3h = no benefit</div><div class="f-box f-red">Do not give beyond 3h — risk of thromboembolic events without benefit</div></div><p class="cc-explain"><strong>Dose: 1g in 100 ml NS over 20 min.</strong> Fast IV rate causes hypotension. Repeat 1g if bleeding persists ≥ 30 min OR reappears within 24h.</p><div class="pearl"><div class="pearl-tag">WOMAN Trial 2017</div><p>World Maternal Antifibrinolytic trial — 20,060 women across 193 hospitals in 21 countries. TXA given within 3h reduced death from PPH by 19% (RR 0.81). No increase in thromboembolic events. Now WHO-recommended for all PPH.</p></div></div></div>
+
+  <div class="cc" id="ddc10"><div class="cc-trigger" onclick="togDD(10)"><div class="cc-num">10</div><div class="cc-text"><div class="cc-q">Condom catheter — the complete technique and evidence behind it</div><div class="cc-hint">CG balloon · Foley No.20 · 300–500ml NS · 96% success · WHO evidence</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body">
+  <div class="img-badge badge-clinical" style="margin-top:12px">STEP BY STEP PREPARATION</div>
+  <div class="clin-img-wrap"><img class="clin-img" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/condom_cath.png" alt="Condom catheter" onerror="this.style.background='#ddd'"></div>
+  <div class="dd-flow" style="margin-top:8px"><div class="f-box f-gray">Cut 2 rings from Foley drainage tube → inflate Foley bulb 2–5ml air → excise bulb</div><div class="f-arr">↓</div><div class="f-box f-blu">Roll condom over Foley catheter → tie with rings twice, 1.5–2cm on each end</div><div class="f-arr">↓</div><div class="f-box f-blu">Excise tip of Foley + blind end of condom 0.5cm from tied ring</div><div class="f-arr">↓ insert into uterus</div><div class="f-box f-grn">Fill with NS via 50ml syringe → 300–500 ml → clamp → pack vagina loosely</div><div class="f-arr">↓</div><div class="f-box f-grn">Leave indwelling Foley in bladder · Remove after 12–24h if controlled</div></div>
+  <p class="cc-explain"><strong>Evidence:</strong> 96% success rate in Rajasthan tertiary centre study (50 cases). WHO-supported RCT across Uganda, Egypt, Senegal (2016–2018) confirmed efficacy. Cost: ₹20. Bakri balloon: ₹15,000–20,000.</p><div class="pearl"><div class="pearl-tag">Alternative balloons</div><p>SB (Sengstaken-Blakemore) esophageal catheter — available in district hospitals · EBB (Ellavi Uterine Balloon) — pre-filled system · Surgical glove catheter — glove tied to Foley, same principle.</p></div></div></div>
+
+  <div class="cc" id="ddc11"><div class="cc-trigger" onclick="togDD(11)"><div class="cc-num">11</div><div class="cc-text"><div class="cc-q">B-Lynch suture — how it works and why it preserves fertility</div><div class="cc-hint">Compression brace · uterus-sparing · Hayman · Cho · Perriera · Gunshella</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body">
+  <div class="img-badge badge-clinical">B-LYNCH COMPRESSION SUTURE</div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:240px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/b_lynch.png" alt="B-Lynch" onerror="this.style.background='#ddd'"></div>
+  <p class="cc-explain"><strong>B-Lynch suture — most common compression suture.</strong> A single brace suture compresses the uterus front to back like squeezing a bag. The uterus stays in place, fertility is preserved, and bleeding stops from mechanical compression.</p><div class="pearl"><div class="pearl-tag">Other compression sutures</div><p>Hayman · Cho square suture · Perriera suture · Gunshella suture — all variations of the same principle. B-Lynch is the most common in Indian practice.</p></div></div></div>
+
+  <div class="cc" id="ddc12"><div class="cc-trigger" onclick="togDD(12)"><div class="cc-num">12</div><div class="cc-text"><div class="cc-q">O'Leary stitch — uterine artery ligation anatomy and success rate</div><div class="cc-hint">75% success B/L · broad ligament · ureteral injury prevention · stepwise devascularisation</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body">
+  <div class="img-badge badge-clinical">O'LEARY STITCH TECHNIQUE</div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:240px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/oleary.png" alt="O'Leary stitch" onerror="this.style.background='#ddd'"></div>
+  <p class="cc-explain"><strong>O'Leary stitch: Level</strong> — as uterine artery turns upward in broad ligament, at point of uterovesical peritoneal reflection. <strong>Needle path</strong> — enters myometrium 2–3 cm medial to uterine artery (to include a portion of myometrium in suture, preventing slipping), exits lateral in avascular space of broad ligament. Proximity to uterus maintained to prevent ureteric injury.</p><div class="pearl"><div class="pearl-tag">Stepwise devascularisation</div><p>U/L uterine artery ligation → B/L uterine artery ligation (75% success) → U/L ovarian artery branch ligation → B/L ovarian artery branch ligation → Internal iliac artery ligation → Hysterectomy.</p></div></div></div>
+
+  <div class="cc" id="ddc13"><div class="cc-trigger" onclick="togDD(13)"><div class="cc-num">13</div><div class="cc-text"><div class="cc-q">Secondary PPH — causes, why Asherman syndrome is the real danger, and how to avoid it</div><div class="cc-hint">Retained tissue · endometritis · ERPC · D&C trap · Asherman</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Secondary PPH — bleeding &gt;24h to 12 weeks postpartum</div><div class="f-arr">↓ two main causes</div><div class="f-row"><div class="f-box f-amb" style="font-size:13px">Retained placental tissue (MC)<br>USG confirms RPOC</div><div class="f-box f-red" style="font-size:13px">Endometritis<br>Fever + offensive lochia + tender uterus</div></div><div class="f-arr">↓ management for RPOC</div><div class="f-box f-red">ERPC (Evacuation of Retained Products of Conception)</div><div class="f-arr">↓ but</div><div class="f-box f-red">D&C in postpartum period = HIGHEST RISK period for Asherman syndrome</div></div><p class="cc-explain"><strong>Asherman syndrome</strong> = intrauterine adhesions from over-aggressive curettage of the postpartum uterus. Complications: hypomenorrhoea → amenorrhoea → infertility → recurrent miscarriage. The postpartum uterus is soft, hyperaemic, and easily traumatised — use suction evacuation or hysteroscopic removal preferentially over sharp curettage.</p><div class="danger"><div class="danger-tag">Endometritis management</div><p>Broad spectrum antibiotics: Amoxyclav + Metronidazole IV. If no improvement at 48–72h → consider retained products despite USG. Uterus that remains subinvoluted on serial examination = subinvolution of placental site.</p></div></div></div>
+
+  <div class="cc" id="ddc14"><div class="cc-trigger" onclick="togDD(14)"><div class="cc-num">14</div><div class="cc-text"><div class="cc-q">AMTSL — the single most important intervention to prevent PPH</div><div class="cc-hint">Active management 3rd stage · oxytocin 10IU · controlled cord traction · uterine massage · 60% reduction</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body">
+  <div class="img-badge badge-clinical">AMTSL — ACTIVE MANAGEMENT</div>
+  <div class="clin-img-wrap"><img class="clin-img" style="max-height:200px" src="https://raw.githubusercontent.com/bhavdiprayka007-code/drzix-assets/main/pph/amtsl.jpg" alt="AMTSL" onerror="this.style.background='#ddd'"></div>
+  <div class="dd-flow" style="margin-top:8px"><div class="f-box f-gray">AMTSL = 3 steps done together within 1 min of delivery</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-grn" style="font-size:13px">① Oxytocin 10 IU IM within 1 min of delivery</div><div class="f-box f-grn" style="font-size:13px">② Controlled cord traction (Brandt-Andrews)</div><div class="f-box f-grn" style="font-size:13px">③ Uterine massage after placenta delivered</div></div><div class="f-arr">↓ evidence</div><div class="f-box f-grn">Reduces PPH incidence by 60% · Standard of care for all deliveries</div></div><p class="cc-explain"><strong>Carbetocin 100 mcg IM is used in AMTSL as an alternative to oxytocin (single dose, longer acting) — but NOT for treatment of established PPH.</strong></p></div></div>
+
+  <div class="cc" id="ddc15"><div class="cc-trigger" onclick="togDD(15)"><div class="cc-num">15</div><div class="cc-text"><div class="cc-q">Shock Index — how to use it at the bedside in 10 seconds</div><div class="cc-hint">HR ÷ SBP · normal 0.5–0.7 · ≥0.9 transfuse · maternal mortality risk</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Shock Index = Heart Rate ÷ Systolic Blood Pressure</div><div class="f-arr">↓ interpretation</div><div class="f-row"><div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-grn" style="font-size:13px;width:100%">0.5–0.7</div><div style="font-size:13px;color:var(--green);text-align:center;padding:4px">Normal</div></div><div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-amb" style="font-size:13px;width:100%">0.7–0.9</div><div style="font-size:13px;color:var(--amber);text-align:center;padding:4px">Mild shock<br>Watch closely</div></div><div style="flex:1;min-width:100px;display:flex;flex-direction:column;align-items:center;gap:3px"><div class="f-box f-red" style="font-size:13px;width:100%">≥ 0.9</div><div style="font-size:13px;color:var(--red);text-align:center;padding:4px">Transfuse now<br>↑ mortality risk</div></div></div></div><p class="cc-explain"><strong>Example:</strong> Patient: HR 110, BP 100/70 → SI = 110/100 = 1.1 → transfuse immediately. <strong>Advantage over BP alone:</strong> Tachycardia appears before hypotension — SI catches shock earlier.</p><div class="pearl"><div class="pearl-tag">Packing of uterus</div><p>Uterine packing = outdated method for PPH. No longer recommended. Mechanical tamponade (balloon) has replaced it completely.</p></div></div></div>
+
+  <div class="cc" id="ddc16"><div class="cc-trigger" onclick="togDD(16)"><div class="cc-num">16</div><div class="cc-text"><div class="cc-q">Placenta accreta spectrum — when PPH cannot be managed conservatively</div><div class="cc-hint">PAS · accreta · increta · percreta · planned hysterectomy · cell saver</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Placenta accreta spectrum (PAS) — placenta abnormally attached to uterine wall</div><div class="f-arr">↓ three grades</div><div class="f-row"><div class="f-box f-amb" style="font-size:13px">Accreta<br>Superficial myometrium</div><div class="f-box f-red" style="font-size:13px">Increta<br>Into myometrium</div><div class="f-box f-red" style="font-size:13px">Percreta<br>Through serosa ± bladder</div></div><div class="f-arr">↓ management</div><div class="f-box f-red">Planned hysterectomy at delivery = gold standard for PAS (not conservative)</div></div><p class="cc-explain"><strong>Risk factor: previous CS scar + placenta previa = highest risk for PAS.</strong> These patients should be delivered at tertiary centres with blood bank and interventional radiology. Conservative management (leaving placenta in situ) has high complication rate.</p><div class="danger"><div class="danger-tag">NEET PG point</div><p>PAS is a major risk factor for PPH — listed under Placental factors. Peripartum hysterectomy for PAS = gold standard. Uterine packing for PPH = outdated.</p></div></div></div>
+
+  <div class="cc" id="ddc17"><div class="cc-trigger" onclick="togDD(17)"><div class="cc-num">17</div><div class="cc-text"><div class="cc-q">Blood transfusion in PPH — when, what, and massive transfusion protocol</div><div class="cc-hint">SI ≥0.9 · packed cells · FFP · platelets · 1:1:1 ratio · cryoprecipitate</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Transfusion trigger in PPH</div><div class="f-arr">↓</div><div class="f-row"><div class="f-box f-red" style="font-size:13px">SI ≥ 0.9</div><div class="f-box f-red" style="font-size:13px">Hb &lt; 7 g/dl (active bleed)</div><div class="f-box f-red" style="font-size:13px">Active bleed + haemodynamic instability</div></div><div class="f-arr">↓ massive transfusion protocol (MTP) if &gt;4 units in 1h</div><div class="f-box f-blu">Packed RBC : FFP : Platelets = 1 : 1 : 1 ratio</div><div class="f-arr">↓ fibrinogen level &lt;2 g/L</div><div class="f-box f-amb">Cryoprecipitate (fibrinogen concentrate) — 10 units</div></div><p class="cc-explain"><strong>FFP dose: 10–15 ml/kg</strong> (not 4–6 units — that was old guidance). <strong>Goal fibrinogen &gt;2 g/L</strong> — fibrinogen is the most critical factor in obstetric haemorrhage and falls early.</p></div></div>
+
+  <div class="cc" id="ddc18"><div class="cc-trigger" onclick="togDD(18)"><div class="cc-num">18</div><div class="cc-text"><div class="cc-q">10 mistakes that kill PPH patients who should have survived</div><div class="cc-hint">Delay · wrong drug · IV oxytocin bolus · FFP before ASV · dextrose · D&C trap</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px">
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 1</div><p>IV oxytocin bolus push — causes cardiac arrest. Always infusion only.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 2</div><p>Oxytocin in 5% dextrose — causes water intoxication. Use NS or RL only.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 3</div><p>Methylergometrine in hypertension or pre-eclampsia — causes stroke. Check BP before giving.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 4</div><p>Carboprost in asthma — causes fatal bronchospasm. Always check respiratory history.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 5</div><p>TXA given after 3h — no benefit, increased thrombosis risk. Time-critical drug.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 6</div><p>Giving uterotonics for traumatic PPH — uterus is contracted, drug has no effect. Examine first.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 7</div><p>Sharp D&C for secondary PPH in postpartum uterus — Asherman syndrome. Use suction or hysteroscopy.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 8</div><p>Transfusing before stopping the bleeding — replacing blood into an open vessel. Control haemorrhage first.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 9</div><p>Not using condom catheter at PHC because "only Bakri is standard" — condom catheter has WHO-level evidence and works. Use it.</p></div>
+  <div class="danger" style="margin-bottom:8px"><div class="danger-tag">Mistake 10</div><p>Packing the uterus — outdated. Does not work and delays effective management. Use balloon tamponade.</p></div></div></div>
+
+  <div class="cc" id="ddc19"><div class="cc-trigger" onclick="togDD(19)"><div class="cc-num">19</div><div class="cc-text"><div class="cc-q">Full management walkthrough — Savitaben from PPH to ICU, step by step</div><div class="cc-hint">Atonic PPH · 4th delivery · condom catheter · uterotonic ladder · transfer</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body"><div class="dd-flow"><div class="f-box f-gray">Savitaben, G4P3, PHC delivery, massive bleed at 30 min after placenta</div><div class="f-arr">↓</div><div class="f-box f-red">Step 1: 2 large bore IV lines · RL 1L wide open · O₂ · Foley · blood samples</div><div class="f-arr">↓</div><div class="f-box f-red">Step 2: Bimanual compression + Inj. Oxytocin 20 IU in 500ml RL + Inj. TXA 1g</div><div class="f-arr">↓ uterus soft, not contracting</div><div class="f-box f-amb">Step 3: + Methylergometrine 0.2 mg IM (BP normal) + Misoprostol 800 mcg SL</div><div class="f-arr">↓ still bleeding at 30 min</div><div class="f-box f-amb">Step 4: Carboprost 250 mcg IM · Condom catheter prepared · inserted · filled 350 ml NS</div><div class="f-arr">↓ bleeding controlled</div><div class="f-box f-grn">Step 5: Transfer with IV running · condom catheter in situ · RL drip · blood arranged</div><div class="f-arr">↓ at district hospital</div><div class="f-box f-grn">B-Lynch suture performed · Condom removed · Discharged day 5</div></div><p class="cc-explain"><strong>The condom catheter bought 4 hours of time at PHC level.</strong> That was enough. By the time Savitaben reached district hospital, she was haemodynamically stable — a controlled surgical case, not a crash.</p></div></div>
+
+  <div class="cc" id="ddc20"><div class="cc-trigger" onclick="togDD(20)"><div class="cc-num">20</div><div class="cc-text"><div class="cc-q">NEET PG high-yield facts — what examiners ask every year</div><div class="cc-hint">Key one-liners · drug facts · common traps</div></div><div class="cc-arrow">&#8964;</div></div><div class="cc-body" style="padding-top:16px">
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">MC cause maternal mortality India</div><p>PPH = most common cause of maternal mortality in India.</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">MC cause of primary PPH</div><p>Tone — atonic uterus (most common overall).</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">MC cause of secondary PPH</div><p>Tissue — retained placental tissue.</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">Gold standard drug for PPH</div><p>Carboprost (PGF₂α) — but CI in asthma. First line = Oxytocin.</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">Only oral/tablet uterotonic</div><p>Misoprostol (PGE₁) — only uterotonic in tablet form.</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">Methylergometrine trap</div><p>CI in hypertension, pre-eclampsia, after first twin delivery, Rh-ve pregnancy. Brown vials. Never IV.</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">Best prevention of PPH</div><p>AMTSL — Active Management of Third Stage of Labour (reduces PPH by 60%).</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">Asherman syndrome</div><p>D&C in postpartum period = highest risk period. Use suction/hysteroscopy instead.</p></div>
+  <div class="pearl" style="margin-bottom:8px"><div class="pearl-tag">Uterine packing</div><p>Outdated. No longer recommended for PPH management.</p></div>
+  <div class="pearl"><div class="pearl-tag">MC compression suture</div><p>B-Lynch suture. Success rate of B/L UAL (O'Leary) = 75% cases.</p></div></div></div>
+`;}
+</script>
+</body>
+</html>
